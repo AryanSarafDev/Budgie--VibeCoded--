@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import logo from "./assets/Logo.png";
 
 const PRIORITY_OPTIONS = [
   { label: "High", value: "high", weight: 3 },
@@ -1458,7 +1459,15 @@ export default function App() {
 
       <header className="hero card">
         <div className="hero-head">
-          <h1>Budgie</h1>
+          <div className="brand-title">
+            <div className="brand-mark">
+              <img src={logo} alt="Budgie logo" className="brand-logo" />
+            </div>
+            <div className="brand-copy">
+              <h1>Budgie</h1>
+              <span>Smart Savings Planner</span>
+            </div>
+          </div>
           <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
             Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
           </button>
