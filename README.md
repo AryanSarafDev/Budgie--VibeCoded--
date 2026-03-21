@@ -1,10 +1,15 @@
 # Budgie
 
+<img width="1354" height="738" alt="Logo" src="https://github.com/user-attachments/assets/d2381ed2-4af8-4d73-96fa-076fd794b2bf" />
+
 Budgie is a monthly savings and goal-planning app that helps you decide where your money should go, then tracks progress over time.
 
 This project is vibe coded: built through rapid iteration with hands-on product feedback and AI-assisted development.
 
-<img width="1444" height="1317" alt="image" src="https://github.com/user-attachments/assets/21c0b65c-ceb4-4f41-b961-719fd9617bdc" />
+<img width="1430" height="1307" alt="image" src="https://github.com/user-attachments/assets/7ce325cd-ee10-4f73-b790-5e7cb2a393b3" />
+
+<img width="1429" height="1152" alt="image" src="https://github.com/user-attachments/assets/4a65d1ba-2731-4b85-90c3-29ba41879215" />
+
 
 ## What Budgie Does
 
