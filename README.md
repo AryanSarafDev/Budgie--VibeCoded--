@@ -4,6 +4,8 @@ Budgie is a monthly savings and goal-planning app that helps you decide where yo
 
 This project is vibe coded: built through rapid iteration with hands-on product feedback and AI-assisted development.
 
+<img width="1444" height="1317" alt="image" src="https://github.com/user-attachments/assets/21c0b65c-ceb4-4f41-b961-719fd9617bdc" />
+
 ## What Budgie Does
 
 Budgie helps you:
