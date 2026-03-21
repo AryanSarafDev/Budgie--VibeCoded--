@@ -87,6 +87,13 @@ body {
   animation: rise 0.55s ease both;
 }
 
+.hero-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .hero h1 {
   margin: 0;
   font-size: clamp(2.2rem, 3vw, 3rem);
@@ -104,6 +111,10 @@ body {
   margin-top: 1.25rem;
   display: flex;
   gap: 0.65rem;
+}
+
+.undo-top {
+  white-space: nowrap;
 }
 
 .page > section {
@@ -401,6 +412,15 @@ button.switch.active {
   color: #fff;
 }
 
+button.danger {
+  background: linear-gradient(130deg, #b35643, #8f2f23);
+  color: #fff;
+}
+
+button.danger:hover {
+  box-shadow: 0 6px 14px rgba(143, 47, 35, 0.24);
+}
+
 .engine-stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -434,6 +454,66 @@ button.switch.active {
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.82);
   padding: 1rem;
+}
+
+.daily-spend-panel {
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.84);
+  padding: 0.95rem;
+}
+
+.daily-spend-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.daily-spend-form > * {
+  min-width: 0;
+}
+
+.daily-spend-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: #445563;
+  font-weight: 600;
+}
+
+.daily-spend-form input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fcfdff;
+  padding: 0.68rem 0.72rem;
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.daily-spend-form label:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.daily-spend-form button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.daily-spend-error {
+  margin: 0.55rem 0 0;
+  color: #9e3d25;
+  font-size: 0.86rem;
+}
+
+.daily-spend-meta {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 .inline-ai {
@@ -541,6 +621,96 @@ button.switch.active {
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.82);
   padding: 1.15rem;
+}
+
+.spend-calendar-card {
+  margin-bottom: 0.8rem;
+}
+
+.calendar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.42rem;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.calendar-controls span {
+  min-width: 150px;
+  text-align: center;
+  color: #2a3c4a;
+  font-weight: 600;
+}
+
+.calendar-controls button {
+  padding: 0.5rem 0.72rem;
+}
+
+.calendar-summary {
+  margin: 0 0 0.55rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.38rem;
+}
+
+.calendar-weekdays {
+  margin-bottom: 0.38rem;
+}
+
+.calendar-weekdays span {
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.calendar-cell {
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.38rem 0.44rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.calendar-cell.has-spend {
+  border-color: rgba(45, 95, 136, 0.32);
+  background: linear-gradient(160deg, rgba(230, 241, 250, 0.82), rgba(244, 250, 255, 0.9));
+}
+
+.calendar-cell.empty {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.calendar-cell .day-number {
+  font-size: 0.78rem;
+  color: #486071;
+  font-weight: 700;
+}
+
+.calendar-cell strong {
+  font-size: 0.8rem;
+  color: #1f3342;
+}
+
+.calendar-cell small {
+  font-size: 0.7rem;
+  color: var(--muted);
 }
 
 .analysis-card h4 {
@@ -929,6 +1099,10 @@ button.switch.active {
   .bar-chart {
     height: 180px;
   }
+
+  .calendar-cell {
+    min-height: 74px;
+  }
 }
 
 @media (min-width: 1200px) and (max-height: 860px) {
@@ -1029,6 +1203,7 @@ button.switch.active {
 
   .goal-form,
   .expense-form,
+  .daily-spend-form,
   .log-toolbar,
   .button-row {
     grid-template-columns: 1fr;
@@ -1065,8 +1240,27 @@ button.switch.active {
     flex-direction: column;
   }
 
+  .hero-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .category-row {
     grid-template-columns: 78px 1fr auto;
+  }
+
+  .calendar-head,
+  .calendar-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .calendar-controls span {
+    min-width: 0;
+  }
+
+  .calendar-cell {
+    min-height: 72px;
   }
 
   .engine-stats {

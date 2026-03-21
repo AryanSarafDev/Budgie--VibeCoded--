@@ -90,15 +90,13 @@ const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const AI_REQUEST_COOLDOWN_MS = 60000;
 const LOG_STORAGE_LIMIT = 500;
+const MAX_UNDO_STEPS = 40;
 const LOG_LEVEL_OPTIONS = ["ALL", "INFO", "WARN", "ERROR"];
 const LOG_TYPE_OPTIONS = ["ALL", "SYSTEM", "AI", "GOAL", "EXPENSE", "PURCHASE"];
 const EXPENSE_HISTORY_TYPE_OPTIONS = ["ALL", "EXPENSE", "PURCHASE"];
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const buildDefaultExpenses = () => [
-  { id: crypto.randomUUID(), name: "Rent", amount: 18000 },
-  { id: crypto.randomUUID(), name: "Food", amount: 7000 },
-  { id: crypto.randomUUID(), name: "Utilities", amount: 3000 }
-];
+const buildDefaultExpenses = () => [];
 
 const loadSavedState = () => {
   if (typeof window === "undefined") {
@@ -275,6 +273,24 @@ const normalizeGoal = (goal) => {
   };
 };
 
+const toMonthKey = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+};
+
+const shiftMonthKey = (monthKey, delta) => {
+  const [yearRaw, monthRaw] = String(monthKey || "").split("-");
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  if (!Number.isFinite(year) || !Number.isFinite(month)) {
+    return toMonthKey(new Date());
+  }
+
+  const base = new Date(year, month - 1 + delta, 1);
+  return toMonthKey(base);
+};
+
 const allocateByWeight = (amount, candidates, map, remainingById) => {
   let remainder = round2(amount);
   let guard = 0;
@@ -387,7 +403,7 @@ function calculateAllocation(pool, items) {
 export default function App() {
   const [savedState] = useState(() => loadSavedState());
   const [salary, setSalary] = useState(() =>
-    typeof savedState?.salary === "number" ? savedState.salary : 60000
+    typeof savedState?.salary === "number" ? savedState.salary : 0
   );
   const [expenses, setExpenses] = useState(() =>
     Array.isArray(savedState?.expenses) && savedState.expenses.length > 0
@@ -398,6 +414,12 @@ export default function App() {
     name: "",
     amount: ""
   });
+  const [dailySpendForm, setDailySpendForm] = useState(() => ({
+    date: new Date().toISOString().slice(0, 10),
+    amount: "",
+    note: ""
+  }));
+  const [dailySpendError, setDailySpendError] = useState("");
   const [monthsProcessed, setMonthsProcessed] = useState(() =>
     typeof savedState?.monthsProcessed === "number" ? savedState.monthsProcessed : 0
   );
@@ -432,10 +454,82 @@ export default function App() {
   const [expenseTypeFilter, setExpenseTypeFilter] = useState("ALL");
   const [expenseMonthFilter, setExpenseMonthFilter] = useState("ALL");
   const [expenseSearch, setExpenseSearch] = useState("");
+  const [calendarMonth, setCalendarMonth] = useState(() => toMonthKey(new Date()));
   const [activePage, setActivePage] = useState("planner");
+  const [undoDepth, setUndoDepth] = useState(0);
   const aiRequestLockRef = useRef(false);
   const lastAiRequestAtRef = useRef(0);
   const geminiBlockedUntilRef = useRef(0);
+  const undoStackRef = useRef([]);
+
+  const buildUndoSnapshot = () => ({
+    salary,
+    expenses,
+    expenseForm,
+    dailySpendForm,
+    dailySpendError,
+    monthsProcessed,
+    monthPoolSpent,
+    extraSavings,
+    spentOnPurchases,
+    purchaseHistory,
+    items,
+    form,
+    aiError,
+    aiResult,
+    aiRawText,
+    logs,
+    expenseTypeFilter,
+    expenseMonthFilter,
+    expenseSearch,
+    calendarMonth,
+    activePage
+  });
+
+  const pushUndoSnapshot = (label) => {
+    const next = [...undoStackRef.current, { label, snapshot: buildUndoSnapshot() }].slice(-MAX_UNDO_STEPS);
+    undoStackRef.current = next;
+    setUndoDepth(next.length);
+  };
+
+  const restoreSnapshot = (snapshot) => {
+    setSalary(snapshot.salary);
+    setExpenses(snapshot.expenses);
+    setExpenseForm(snapshot.expenseForm);
+    setDailySpendForm(snapshot.dailySpendForm);
+    setDailySpendError(snapshot.dailySpendError);
+    setMonthsProcessed(snapshot.monthsProcessed);
+    setMonthPoolSpent(snapshot.monthPoolSpent);
+    setExtraSavings(snapshot.extraSavings);
+    setSpentOnPurchases(snapshot.spentOnPurchases);
+    setPurchaseHistory(snapshot.purchaseHistory);
+    setItems(snapshot.items);
+    setForm(snapshot.form);
+    setAiLoading(false);
+    setAiError(snapshot.aiError);
+    setAiResult(snapshot.aiResult);
+    setAiRawText(snapshot.aiRawText);
+    setLogs(snapshot.logs);
+    setExpenseTypeFilter(snapshot.expenseTypeFilter);
+    setExpenseMonthFilter(snapshot.expenseMonthFilter);
+    setExpenseSearch(snapshot.expenseSearch);
+    setCalendarMonth(snapshot.calendarMonth);
+    setActivePage(snapshot.activePage);
+    aiRequestLockRef.current = false;
+    lastAiRequestAtRef.current = 0;
+    geminiBlockedUntilRef.current = 0;
+  };
+
+  const undoLastAction = () => {
+    if (undoStackRef.current.length === 0) {
+      return;
+    }
+    const next = [...undoStackRef.current];
+    const latest = next.pop();
+    undoStackRef.current = next;
+    setUndoDepth(next.length);
+    restoreSnapshot(latest.snapshot);
+  };
 
   const addLog = ({ type, level, message, meta = null }) => {
     const safeType = LOG_TYPE_OPTIONS.includes(type) ? type : "SYSTEM";
@@ -521,6 +615,7 @@ export default function App() {
       saved: 0
     };
 
+    pushUndoSnapshot("Add goal");
     setItems((current) => [...current, nextItem]);
     setForm({ name: "", target: "", priority: "medium", percent: "" });
     addLog({
@@ -553,6 +648,7 @@ export default function App() {
       return;
     }
 
+    pushUndoSnapshot("Add expense");
     setExpenses((current) => [
       ...current,
       {
@@ -572,6 +668,7 @@ export default function App() {
 
   const removeExpense = (id) => {
     const target = expenses.find((expense) => expense.id === id);
+    pushUndoSnapshot("Remove expense");
     setExpenses((current) => current.filter((expense) => expense.id !== id));
     addLog({
       type: "EXPENSE",
@@ -581,7 +678,63 @@ export default function App() {
     });
   };
 
+  const addDailySpending = (event) => {
+    event.preventDefault();
+    setDailySpendError("");
+
+    const amountValue = Number(dailySpendForm.amount);
+    if (!dailySpendForm.date || Number.isNaN(new Date(dailySpendForm.date).getTime())) {
+      setDailySpendError("Choose a valid date.");
+      return;
+    }
+
+    if (!Number.isFinite(amountValue) || amountValue <= 0) {
+      setDailySpendError("Enter a valid spending amount.");
+      return;
+    }
+
+    const availableSavingsNow = round2(extraSavings + availableMonthExcess);
+    if (amountValue > availableSavingsNow + 0.01) {
+      setDailySpendError("Not enough savings available for this daily spend entry.");
+      return;
+    }
+
+    pushUndoSnapshot("Add daily spending");
+    let remaining = round2(amountValue);
+    const fromCurrentExcess = Math.min(availableMonthExcess, remaining);
+    if (fromCurrentExcess > 0) {
+      setMonthPoolSpent((value) => round2(value + fromCurrentExcess));
+      remaining = round2(remaining - fromCurrentExcess);
+    }
+
+    if (remaining > 0) {
+      setExtraSavings((value) => round2(Math.max(0, value - remaining)));
+    }
+
+    const note = dailySpendForm.note.trim();
+    const dateLabel = formatShortDate(dailySpendForm.date);
+
+    addLog({
+      type: "EXPENSE",
+      level: "INFO",
+      message: `Daily spend logged: ${note || "General"} (${dateLabel})`,
+      meta: {
+        amount: round2(amountValue),
+        source: "DAILY_SPEND",
+        spendDate: dailySpendForm.date,
+        note: note || null
+      }
+    });
+
+    setDailySpendForm((current) => ({
+      ...current,
+      amount: "",
+      note: ""
+    }));
+  };
+
   const processMonth = () => {
+    pushUndoSnapshot("Process month");
     addLog({
       type: "SYSTEM",
       level: "INFO",
@@ -622,6 +775,7 @@ export default function App() {
 
   const removeItem = (id) => {
     const target = items.find((item) => item.id === id);
+    pushUndoSnapshot("Remove goal");
     setItems((current) => current.filter((item) => item.id !== id));
     addLog({
       type: "GOAL",
@@ -648,6 +802,8 @@ export default function App() {
       });
       return;
     }
+
+    pushUndoSnapshot("Buy goal");
 
     if (remainingToFund > 0) {
       let stillNeeded = remainingToFund;
@@ -683,6 +839,7 @@ export default function App() {
   };
 
   const resetProgress = () => {
+    pushUndoSnapshot("Reset progress");
     setItems((current) => current.map((item) => ({ ...item, saved: 0 })));
     setMonthsProcessed(0);
     setMonthPoolSpent(0);
@@ -694,6 +851,52 @@ export default function App() {
       level: "INFO",
       message: "Progress reset for goals, purchases, and monthly counters."
     });
+  };
+
+  const hardResetApp = () => {
+    const confirmed = window.confirm("This will erase all saved Budgie data. Continue?");
+    if (!confirmed) {
+      return;
+    }
+
+    pushUndoSnapshot("Hard reset");
+    localStorage.removeItem(STORAGE_KEY);
+
+    setSalary(0);
+    setExpenses(buildDefaultExpenses());
+    setExpenseForm({ name: "", amount: "" });
+    setDailySpendForm({
+      date: new Date().toISOString().slice(0, 10),
+      amount: "",
+      note: ""
+    });
+    setDailySpendError("");
+    setMonthsProcessed(0);
+    setMonthPoolSpent(0);
+    setExtraSavings(0);
+    setSpentOnPurchases(0);
+    setPurchaseHistory([]);
+    setItems([]);
+    setForm({
+      name: "",
+      target: "",
+      priority: "medium",
+      percent: ""
+    });
+    setAiLoading(false);
+    setAiError("");
+    setAiResult(null);
+    setAiRawText("");
+    setLogs([]);
+    setExpenseTypeFilter("ALL");
+    setExpenseMonthFilter("ALL");
+    setExpenseSearch("");
+    setCalendarMonth(toMonthKey(new Date()));
+    setActivePage("planner");
+
+    aiRequestLockRef.current = false;
+    lastAiRequestAtRef.current = 0;
+    geminiBlockedUntilRef.current = 0;
   };
 
   const runAiAdvisor = async () => {
@@ -908,6 +1111,7 @@ export default function App() {
       return;
     }
 
+    pushUndoSnapshot("Apply AI suggestions");
     const byName = new Map(
       aiResult.suggestedPercents.map((item) => [item.goalName.trim().toLowerCase(), item.percent])
     );
@@ -941,6 +1145,119 @@ export default function App() {
     () => logs.filter((entry) => entry.type === "EXPENSE" || entry.type === "PURCHASE"),
     [logs]
   );
+
+  const dailySpendEntries = useMemo(() => {
+    const output = [];
+
+    expenseHistory.forEach((entry) => {
+      const amount = Number(entry?.meta?.amount || 0);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return;
+      }
+
+      if (entry.type === "PURCHASE") {
+        const dateKey = String(entry.ts || "").slice(0, 10);
+        if (dateKey.length === 10) {
+          output.push({
+            id: entry.id,
+            dateKey,
+            amount: round2(amount),
+            kind: "purchase"
+          });
+        }
+        return;
+      }
+
+      if (entry.type === "EXPENSE" && entry?.meta?.source === "DAILY_SPEND") {
+        const dateKey =
+          typeof entry?.meta?.spendDate === "string" && entry.meta.spendDate.length === 10
+            ? entry.meta.spendDate
+            : String(entry.ts || "").slice(0, 10);
+
+        if (dateKey.length === 10) {
+          output.push({
+            id: entry.id,
+            dateKey,
+            amount: round2(amount),
+            kind: "daily"
+          });
+        }
+      }
+    });
+
+    return output;
+  }, [expenseHistory]);
+
+  const todaySpendTotal = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    return round2(
+      dailySpendEntries
+        .filter((entry) => entry.dateKey === todayKey)
+        .reduce((sum, entry) => sum + entry.amount, 0)
+    );
+  }, [dailySpendEntries]);
+
+  const calendarSnapshot = useMemo(() => {
+    const [yearRaw, monthRaw] = calendarMonth.split("-");
+    const year = Number(yearRaw);
+    const month = Number(monthRaw);
+    const base =
+      Number.isFinite(year) && Number.isFinite(month)
+        ? new Date(year, month - 1, 1)
+        : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    const monthKey = toMonthKey(base);
+    const firstWeekday = base.getDay();
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+
+    const totalsByDay = new Map();
+    let monthTotal = 0;
+
+    dailySpendEntries.forEach((entry) => {
+      if (!entry.dateKey.startsWith(monthKey)) {
+        return;
+      }
+      monthTotal = round2(monthTotal + entry.amount);
+      const day = Number(entry.dateKey.slice(8, 10));
+      if (!Number.isFinite(day) || day < 1 || day > daysInMonth) {
+        return;
+      }
+
+      const current = totalsByDay.get(day) || { total: 0, count: 0 };
+      totalsByDay.set(day, {
+        total: round2(current.total + entry.amount),
+        count: current.count + 1
+      });
+    });
+
+    const cells = [];
+    for (let index = 0; index < firstWeekday; index += 1) {
+      cells.push({ type: "empty", key: `empty-${index}` });
+    }
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const stat = totalsByDay.get(day) || { total: 0, count: 0 };
+      cells.push({
+        type: "day",
+        key: `${monthKey}-${String(day).padStart(2, "0")}`,
+        day,
+        total: stat.total,
+        count: stat.count
+      });
+    }
+
+    const monthLabel = new Intl.DateTimeFormat("en-IN", {
+      month: "long",
+      year: "numeric"
+    }).format(base);
+
+    return {
+      monthKey,
+      monthLabel,
+      monthTotal: round2(monthTotal),
+      cells
+    };
+  }, [calendarMonth, dailySpendEntries]);
 
   const expenseMonthOptions = useMemo(() => {
     const months = Array.from(
@@ -1113,6 +1430,7 @@ export default function App() {
   };
 
   const clearExpenseHistory = () => {
+    pushUndoSnapshot("Clear expense history");
     setLogs((current) => current.filter((entry) => entry.type !== "EXPENSE" && entry.type !== "PURCHASE"));
   };
 
@@ -1139,7 +1457,12 @@ export default function App() {
       <div className="bg-shape bg-shape-two" />
 
       <header className="hero card">
-        <h1>Budgie</h1>
+        <div className="hero-head">
+          <h1>Budgie</h1>
+          <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
+            Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
+          </button>
+        </div>
         <p>Track monthly salary, deduct expenses, and auto-distribute your savings into your top goals.</p>
         <div className="page-switch">
           <button
@@ -1280,10 +1603,67 @@ export default function App() {
             )}
           </div>
 
+          <div className="daily-spend-panel">
+            <div className="list-header">
+              <h3>End-of-Day Spending</h3>
+              <span>Deducts from savings</span>
+            </div>
+
+            <form onSubmit={addDailySpending} className="daily-spend-form">
+              <label>
+                Date
+                <input
+                  type="date"
+                  value={dailySpendForm.date}
+                  onChange={(event) =>
+                    setDailySpendForm((current) => ({ ...current, date: event.target.value }))
+                  }
+                />
+              </label>
+
+              <label>
+                Amount
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="450"
+                  value={dailySpendForm.amount}
+                  onChange={(event) =>
+                    setDailySpendForm((current) => ({ ...current, amount: event.target.value }))
+                  }
+                />
+              </label>
+
+              <label>
+                Note (optional)
+                <input
+                  type="text"
+                  placeholder="Dinner, cab, snacks"
+                  value={dailySpendForm.note}
+                  onChange={(event) =>
+                    setDailySpendForm((current) => ({ ...current, note: event.target.value }))
+                  }
+                />
+              </label>
+
+              <button type="submit">Add Daily Spend</button>
+            </form>
+
+            {dailySpendError ? <p className="daily-spend-error">{dailySpendError}</p> : null}
+            <p className="daily-spend-meta">
+              Available savings now: <strong>{formatCurrency(round2(extraSavings + availableMonthExcess))}</strong>
+              {" · "}
+              Spent today: <strong>{formatCurrency(todaySpendTotal)}</strong>
+            </p>
+          </div>
+
           <div className="button-row">
             <button onClick={processMonth}>Process Next Month</button>
             <button className="ghost" onClick={resetProgress}>
               Reset Progress
+            </button>
+            <button className="danger" onClick={hardResetApp}>
+              Hard Reset
             </button>
           </div>
 
@@ -1518,6 +1898,59 @@ export default function App() {
             )}
           </article>
         </div>
+
+        <article className="analysis-card spend-calendar-card">
+          <div className="calendar-head">
+            <h4>Daily Expense Calendar</h4>
+            <div className="calendar-controls">
+              <button className="ghost" onClick={() => setCalendarMonth((value) => shiftMonthKey(value, -1))}>
+                Prev
+              </button>
+              <span>{calendarSnapshot.monthLabel}</span>
+              <button className="ghost" onClick={() => setCalendarMonth((value) => shiftMonthKey(value, 1))}>
+                Next
+              </button>
+            </div>
+          </div>
+
+          <p className="calendar-summary">
+            Total spent in {calendarSnapshot.monthLabel}: <strong>{formatCurrency(calendarSnapshot.monthTotal)}</strong>
+          </p>
+
+          <div className="calendar-weekdays">
+            {WEEKDAY_LABELS.map((label) => (
+              <span key={label}>{label}</span>
+            ))}
+          </div>
+
+          <div className="calendar-grid">
+            {calendarSnapshot.cells.map((cell) =>
+              cell.type === "empty" ? (
+                <div className="calendar-cell empty" key={cell.key} aria-hidden="true" />
+              ) : (
+                <div
+                  className={`calendar-cell${cell.total > 0 ? " has-spend" : ""}`}
+                  key={cell.key}
+                  title={
+                    cell.total > 0
+                      ? `${formatCurrency(cell.total)} across ${cell.count} entr${cell.count > 1 ? "ies" : "y"}`
+                      : "No spending"
+                  }
+                >
+                  <span className="day-number">{cell.day}</span>
+                  {cell.total > 0 ? (
+                    <>
+                      <strong>{formatCurrency(cell.total)}</strong>
+                      <small>{cell.count} entr{cell.count > 1 ? "ies" : "y"}</small>
+                    </>
+                  ) : (
+                    <small>No spend</small>
+                  )}
+                </div>
+              )
+            )}
+          </div>
+        </article>
 
         <div className="log-chips">
           <span className="log-chip info">Added {formatCurrency(expenseStats.totalExpensesAdded)}</span>
