@@ -622,14 +622,103 @@ button.danger:hover {
   margin: 0 0 0.56rem;
 }
 
+.ai-subhead {
+  margin: 0.25rem 0 0.45rem;
+  color: #304757;
+}
+
 .ai-result ul {
   margin: 0 0 0.55rem;
   padding-left: 1.05rem;
 }
 
+.ai-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.56rem;
+}
+
+.ai-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #f4f8fb;
+  color: #2b4252;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+  font-weight: 600;
+}
+
+.ai-pill.health-healthy {
+  background: rgba(84, 154, 99, 0.14);
+  color: #245236;
+}
+
+.ai-pill.health-watch {
+  background: rgba(199, 141, 53, 0.16);
+  color: #6f4b10;
+}
+
+.ai-pill.health-critical {
+  background: rgba(182, 89, 65, 0.15);
+  color: #7b2e1e;
+}
+
 .ai-map {
   color: #204137;
   font-size: 0.92rem;
+}
+
+.ai-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ai-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(45, 95, 136, 0.28);
+  background: rgba(45, 95, 136, 0.09);
+  color: #244359;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.22rem 0.6rem;
+}
+
+.ai-goal-insights {
+  margin-bottom: 0.5rem;
+}
+
+.ai-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.ai-insight {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 0.58rem 0.62rem;
+}
+
+.ai-insight h5 {
+  margin: 0 0 0.35rem;
+  font-family: "Sora", sans-serif;
+  font-size: 0.86rem;
+}
+
+.ai-insight p {
+  margin: 0 0 0.22rem;
+  font-size: 0.8rem;
+  color: #375162;
+}
+
+.ai-insight p:last-child {
+  margin-bottom: 0;
 }
 
 .ai-error {
@@ -770,11 +859,14 @@ button.danger:hover {
   grid-auto-flow: column;
   grid-auto-columns: minmax(24px, 1fr);
   align-items: end;
+  justify-items: center;
   gap: 0.45rem;
 }
 
 .bar-item {
   height: 100%;
+  width: 100%;
+  max-width: 52px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;

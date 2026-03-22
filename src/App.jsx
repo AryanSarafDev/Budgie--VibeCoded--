@@ -154,7 +154,196 @@ const buildAiPrompt = ({ salary, monthlyExpenseTotal, monthlyPool, goals, months
 - Prioritize high-priority goals and nearly completed goals.
 - Keep total suggested percentages at or below 100.
 - Mention if the user is overspending relative to salary.
-\nReturn ONLY valid JSON in this exact shape:\n{\n  "summary": "string",\n  "recommendations": ["string"],\n  "suggestedPercents": [{"goalName": "string", "percent": number}]\n}`;
+- Give actionable steps for the next 30 days.
+\nReturn ONLY valid JSON in this exact shape:\n{\n  "summary": "string",\n  "recommendations": ["string"],\n  "suggestedPercents": [{"goalName": "string", "percent": number}],\n  "quickActions": ["string"],\n  "health": {"status": "healthy|watch|critical", "expenseRatioPct": number, "savingsRatePct": number},\n  "goalInsights": [{"goalName": "string", "remaining": number, "monthlyContribution": number, "etaMonths": number | null}]\n}`;
+};
+
+const sanitizeStatus = (value) => {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "healthy" || normalized === "watch" || normalized === "critical") {
+    return normalized;
+  }
+  return null;
+};
+
+const buildAdvisorEnhancements = ({ salary, monthlyExpenseTotal, monthlyPool, goals, suggestedPercents }) => {
+  const safePool = Math.max(0, Number(monthlyPool) || 0);
+  const safeSalary = Math.max(0, Number(salary) || 0);
+  const safeExpense = Math.max(0, Number(monthlyExpenseTotal) || 0);
+
+  const activeGoals = goals
+    .map((goal) => {
+      const target = Math.max(0, Number(goal?.target) || 0);
+      const saved = Math.max(0, Number(goal?.saved) || 0);
+      return {
+        name: String(goal?.name || "Untitled Goal"),
+        target,
+        saved,
+        remaining: Math.max(0, round2(target - saved)),
+        priority: goal?.priority || "medium",
+        currentPercent: Math.max(0, Math.min(100, Number(goal?.currentPercent ?? goal?.percent) || 0))
+      };
+    })
+    .filter((goal) => goal.remaining > 0.01);
+
+  const suggestionMap = new Map(
+    (Array.isArray(suggestedPercents) ? suggestedPercents : [])
+      .map((item) => ({
+        goalName: String(item?.goalName || "").trim(),
+        percent: Number(item?.percent)
+      }))
+      .filter((item) => item.goalName && Number.isFinite(item.percent) && item.percent >= 0)
+      .map((item) => [item.goalName.toLowerCase(), Math.min(100, round2(item.percent))])
+  );
+
+  const totalSuggested = Array.from(suggestionMap.values()).reduce((sum, value) => sum + value, 0);
+  const fallbackPercent =
+    activeGoals.length > 0 && totalSuggested <= 0 ? round2(100 / activeGoals.length) : 0;
+
+  const goalInsights = activeGoals
+    .map((goal) => {
+      const suggestedPercent = suggestionMap.get(goal.name.toLowerCase());
+      const appliedPercent =
+        Number.isFinite(suggestedPercent) && suggestedPercent >= 0
+          ? suggestedPercent
+          : goal.currentPercent > 0
+            ? goal.currentPercent
+            : fallbackPercent;
+
+      const monthlyContribution = round2((safePool * appliedPercent) / 100);
+      const etaMonths = monthlyContribution > 0.01 ? Math.ceil(goal.remaining / monthlyContribution) : null;
+
+      return {
+        goalName: goal.name,
+        remaining: goal.remaining,
+        suggestedPercent: round2(appliedPercent),
+        monthlyContribution,
+        etaMonths,
+        priority: goal.priority
+      };
+    })
+    .sort((a, b) => {
+      const etaA = a.etaMonths == null ? Number.POSITIVE_INFINITY : a.etaMonths;
+      const etaB = b.etaMonths == null ? Number.POSITIVE_INFINITY : b.etaMonths;
+      return etaA - etaB;
+    });
+
+  const expenseRatio = safeSalary > 0 ? safeExpense / safeSalary : 1;
+  const savingsRate = safeSalary > 0 ? safePool / safeSalary : 0;
+
+  const healthStatus =
+    safePool <= 0 || expenseRatio >= 0.9
+      ? "critical"
+      : expenseRatio >= 0.75 || savingsRate < 0.2
+        ? "watch"
+        : "healthy";
+
+  const quickActions = [];
+  if (safeSalary <= 0) {
+    quickActions.push("Add your monthly salary so planning can estimate realistic timelines.");
+  }
+  if (safePool <= 0) {
+    quickActions.push("Your monthly savings pool is zero. Cut variable expenses or increase salary before setting percentages.");
+  }
+  if (totalSuggested > 100.01) {
+    quickActions.push("Suggested percentages exceed 100%. Trim lower-priority goals so allocation remains sustainable.");
+  }
+
+  const slowGoal = goalInsights.find((item) => item.etaMonths !== null && item.etaMonths > 18);
+  if (slowGoal) {
+    quickActions.push(`At current pace, ${slowGoal.goalName} may take ${slowGoal.etaMonths} months. Increase its monthly share.`);
+  }
+
+  const noEtaCount = goalInsights.filter((item) => item.etaMonths === null).length;
+  if (noEtaCount > 0) {
+    quickActions.push(`${noEtaCount} goal(s) have no timeline because projected monthly contribution is zero.`);
+  }
+
+  return {
+    health: {
+      status: healthStatus,
+      expenseRatioPct: round2(expenseRatio * 100),
+      savingsRatePct: round2(savingsRate * 100)
+    },
+    quickActions,
+    goalInsights
+  };
+};
+
+const mergeAdvisorResult = (result, context) => {
+  const base = {
+    source: String(result?.source || "local"),
+    summary: String(result?.summary || "No summary generated."),
+    recommendations: Array.isArray(result?.recommendations)
+      ? result.recommendations.map((item) => String(item)).filter(Boolean)
+      : [],
+    suggestedPercents: Array.isArray(result?.suggestedPercents)
+      ? result.suggestedPercents
+          .map((item) => ({
+            goalName: String(item?.goalName || ""),
+            percent: Number(item?.percent)
+          }))
+          .filter((item) => item.goalName.trim().length > 0 && Number.isFinite(item.percent) && item.percent >= 0)
+          .map((item) => ({ ...item, percent: round2(Math.min(100, item.percent)) }))
+      : []
+  };
+
+  const computed = buildAdvisorEnhancements({
+    ...context,
+    suggestedPercents: base.suggestedPercents
+  });
+
+  const parsedHealth = result?.health && typeof result.health === "object"
+    ? {
+        status: sanitizeStatus(result.health.status),
+        expenseRatioPct: Number(result.health.expenseRatioPct),
+        savingsRatePct: Number(result.health.savingsRatePct)
+      }
+    : null;
+
+  const normalizedGoalInsights = Array.isArray(result?.goalInsights)
+    ? result.goalInsights
+        .map((item) => ({
+          goalName: String(item?.goalName || ""),
+          remaining: Number(item?.remaining),
+          monthlyContribution: Number(item?.monthlyContribution),
+          etaMonths:
+            item?.etaMonths === null || item?.etaMonths === undefined
+              ? null
+              : Math.max(0, Math.round(Number(item.etaMonths) || 0)),
+          suggestedPercent: Number(item?.suggestedPercent)
+        }))
+        .filter((item) => item.goalName.trim().length > 0)
+    : [];
+
+  return {
+    ...base,
+    quickActions:
+      Array.isArray(result?.quickActions) && result.quickActions.length > 0
+        ? result.quickActions.map((item) => String(item)).filter(Boolean)
+        : computed.quickActions,
+    health: {
+      status: parsedHealth?.status || computed.health.status,
+      expenseRatioPct: Number.isFinite(parsedHealth?.expenseRatioPct)
+        ? round2(parsedHealth.expenseRatioPct)
+        : computed.health.expenseRatioPct,
+      savingsRatePct: Number.isFinite(parsedHealth?.savingsRatePct)
+        ? round2(parsedHealth.savingsRatePct)
+        : computed.health.savingsRatePct
+    },
+    goalInsights: normalizedGoalInsights.length > 0
+      ? normalizedGoalInsights.map((item) => ({
+          ...item,
+          remaining: Number.isFinite(item.remaining) ? round2(Math.max(0, item.remaining)) : 0,
+          monthlyContribution: Number.isFinite(item.monthlyContribution)
+            ? round2(Math.max(0, item.monthlyContribution))
+            : 0,
+          suggestedPercent: Number.isFinite(item.suggestedPercent)
+            ? round2(Math.min(100, Math.max(0, item.suggestedPercent)))
+            : null
+        }))
+      : computed.goalInsights
+  };
 };
 
 const buildLocalAdvisorPlan = ({ salary, monthlyExpenseTotal, monthlyPool, goals }) => {
@@ -222,12 +411,17 @@ const buildLocalAdvisorPlan = ({ salary, monthlyExpenseTotal, monthlyPool, goals
       ? `Local smart plan generated for ${goalsWithNeed.length} active goals using priority and remaining-amount weighting.`
       : "Local smart plan generated, but your monthly savings pool is currently zero.";
 
-  return {
+  return mergeAdvisorResult({
     source: "local",
     summary,
     recommendations,
     suggestedPercents
-  };
+  }, {
+    salary,
+    monthlyExpenseTotal,
+    monthlyPool,
+    goals
+  });
 };
 
 const getApiErrorDetails = (errorBody) => {
@@ -911,10 +1105,26 @@ export default function App() {
     }
 
     const now = Date.now();
+    const goalContext = items.map((item) => ({
+      name: item.name,
+      target: item.target,
+      saved: item.saved,
+      priority: item.priority,
+      currentPercent: item.percent,
+      monthlyAllocation: plannedAllocation.find((entry) => entry.id === item.id)?.amount || 0
+    }));
+
     const elapsedSinceLast = now - lastAiRequestAtRef.current;
     if (lastAiRequestAtRef.current > 0 && elapsedSinceLast < AI_REQUEST_COOLDOWN_MS) {
       const waitSeconds = Math.ceil((AI_REQUEST_COOLDOWN_MS - elapsedSinceLast) / 1000);
-      setAiError(`Please wait ${waitSeconds}s before generating another AI plan.`);
+      const fallback = buildLocalAdvisorPlan({
+        salary,
+        monthlyExpenseTotal,
+        monthlyPool: effectivePlanningPool,
+        goals: goalContext
+      });
+      setAiResult(fallback);
+      setAiError(`Please wait ${waitSeconds}s before generating another AI plan. Showing local smart plan meanwhile.`);
       addLog({
         type: "AI",
         level: "WARN",
@@ -925,23 +1135,21 @@ export default function App() {
     }
 
     if (!GEMINI_API_KEY) {
-      setAiError("Missing API key. Add VITE_GEMINI_API_KEY in your .env file and restart dev server.");
+      const fallback = buildLocalAdvisorPlan({
+        salary,
+        monthlyExpenseTotal,
+        monthlyPool: effectivePlanningPool,
+        goals: goalContext
+      });
+      setAiResult(fallback);
+      setAiError("Missing API key. Using local smart plan. Add VITE_GEMINI_API_KEY in your .env file to enable Gemini insights.");
       addLog({
         type: "AI",
-        level: "ERROR",
-        message: "AI request failed because API key is missing."
+        level: "WARN",
+        message: "AI request used local smart plan because API key is missing."
       });
       return;
     }
-
-    const goalContext = items.map((item) => ({
-      name: item.name,
-      target: item.target,
-      saved: item.saved,
-      priority: item.priority,
-      currentPercent: item.percent,
-      monthlyAllocation: plannedAllocation.find((entry) => entry.id === item.id)?.amount || 0
-    }));
 
     if (now < geminiBlockedUntilRef.current) {
       const waitSeconds = Math.ceil((geminiBlockedUntilRef.current - now) / 1000);
@@ -1043,8 +1251,14 @@ export default function App() {
 
       const parsed = parseJsonFromText(text);
       if (!parsed || typeof parsed !== "object") {
-        setAiResult(null);
-        setAiError("Could not parse structured AI output. See raw response below.");
+        const fallback = buildLocalAdvisorPlan({
+          salary,
+          monthlyExpenseTotal,
+          monthlyPool: effectivePlanningPool,
+          goals: goalContext
+        });
+        setAiResult(fallback);
+        setAiError("Could not parse structured AI output. Showing local smart plan and raw response below.");
         addLog({
           type: "AI",
           level: "ERROR",
@@ -1053,7 +1267,7 @@ export default function App() {
         return;
       }
 
-      const nextResult = {
+      const nextResult = mergeAdvisorResult({
         source: "gemini",
         summary: String(parsed.summary || "No summary generated."),
         recommendations: Array.isArray(parsed.recommendations)
@@ -1070,8 +1284,18 @@ export default function App() {
                   item.goalName.trim().length > 0 && Number.isFinite(item.percent) && item.percent >= 0
               )
               .map((item) => ({ ...item, percent: round2(Math.min(100, item.percent)) }))
-          : []
-      };
+          : [],
+        quickActions: Array.isArray(parsed.quickActions)
+          ? parsed.quickActions.map((item) => String(item))
+          : [],
+        health: parsed.health,
+        goalInsights: Array.isArray(parsed.goalInsights) ? parsed.goalInsights : []
+      }, {
+        salary,
+        monthlyExpenseTotal,
+        monthlyPool: effectivePlanningPool,
+        goals: goalContext
+      });
 
       setAiResult(nextResult);
       addLog({
@@ -1703,19 +1927,70 @@ export default function App() {
 
             {aiResult ? (
               <div className="ai-result">
-                <p><strong>Mode:</strong> {aiResult.source === "gemini" ? "Gemini" : "Local Smart Fallback"}</p>
+                <div className="ai-meta">
+                  <span className="ai-pill">Mode: {aiResult.source === "gemini" ? "Gemini" : "Local Smart Fallback"}</span>
+                  <span className={`ai-pill health-${aiResult.health?.status || "watch"}`}>
+                    Health: {aiResult.health?.status || "watch"}
+                  </span>
+                  {typeof aiResult.health?.expenseRatioPct === "number" ? (
+                    <span className="ai-pill">Expense Ratio: {aiResult.health.expenseRatioPct}%</span>
+                  ) : null}
+                  {typeof aiResult.health?.savingsRatePct === "number" ? (
+                    <span className="ai-pill">Savings Rate: {aiResult.health.savingsRatePct}%</span>
+                  ) : null}
+                </div>
+
                 <p><strong>Summary:</strong> {aiResult.summary}</p>
+
+                {aiResult.quickActions?.length > 0 ? (
+                  <>
+                    <p className="ai-subhead"><strong>Next 30 Days</strong></p>
+                    <ul>
+                      {aiResult.quickActions.map((point, index) => (
+                        <li key={`${point}-${index}`}>{point}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+
+                {aiResult.goalInsights?.length > 0 ? (
+                  <div className="ai-goal-insights">
+                    <p className="ai-subhead"><strong>Goal Timelines</strong></p>
+                    <div className="ai-insights-grid">
+                      {aiResult.goalInsights.slice(0, 6).map((item) => (
+                        <article className="ai-insight" key={item.goalName}>
+                          <h5>{item.goalName}</h5>
+                          <p>Remaining: {formatCurrency(item.remaining || 0)}</p>
+                          <p>Monthly: {formatCurrency(item.monthlyContribution || 0)}</p>
+                          <p>ETA: {item.etaMonths == null ? "No timeline" : `${item.etaMonths} month(s)`}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
                 {aiResult.recommendations.length > 0 ? (
-                  <ul>
+                  <>
+                    <p className="ai-subhead"><strong>Advisor Notes</strong></p>
+                    <ul>
                     {aiResult.recommendations.map((point, index) => (
                       <li key={`${point}-${index}`}>{point}</li>
                     ))}
-                  </ul>
+                    </ul>
+                  </>
                 ) : null}
+
                 {aiResult.suggestedPercents.length > 0 ? (
-                  <p className="ai-map">
-                    Suggested %: {aiResult.suggestedPercents.map((item) => `${item.goalName} ${item.percent}%`).join(" | ")}
-                  </p>
+                  <div className="ai-map">
+                    <p className="ai-subhead"><strong>Suggested Allocation</strong></p>
+                    <div className="ai-chip-row">
+                      {aiResult.suggestedPercents.map((item) => (
+                        <span className="ai-chip" key={`${item.goalName}-${item.percent}`}>
+                          {item.goalName}: {item.percent}%
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ) : null}
               </div>
             ) : null}
