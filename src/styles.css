@@ -33,6 +33,7 @@
 }
 
 [data-theme="dark"] .finance-block,
+[data-theme="dark"] .finance-simple-item,
 [data-theme="dark"] .purchase-history,
 [data-theme="dark"] .daily-spend-panel,
 [data-theme="dark"] .goal-form,
@@ -327,6 +328,50 @@ body {
   grid-template-columns: 1fr 1.8fr 1.2fr;
   gap: 1rem;
   margin-top: 0.55rem;
+}
+
+.finance-overview-head {
+  align-items: flex-start;
+}
+
+.finance-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: auto;
+}
+
+.finance-toggle {
+  padding: 0.45rem 0.72rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.finance-simple-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.55rem;
+}
+
+.finance-simple-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.68rem 0.72rem;
+}
+
+.finance-simple-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.74rem;
+  margin-bottom: 0.2rem;
+}
+
+.finance-simple-item strong {
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .finance-block {
@@ -1648,6 +1693,31 @@ button.danger:hover {
 
   .page > section {
     margin-bottom: 0.75rem;
+  }
+
+  .finance-overview-head {
+    align-items: stretch;
+  }
+
+  .finance-head-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .finance-toggle {
+    padding: 0.46rem 0.62rem;
+    font-size: 0.78rem;
+  }
+
+  .finance-simple-grid {
+    grid-template-columns: 1fr;
+    gap: 0.42rem;
+  }
+
+  .finance-simple-item {
+    padding: 0.62rem 0.66rem;
   }
 
   .finance-overview,

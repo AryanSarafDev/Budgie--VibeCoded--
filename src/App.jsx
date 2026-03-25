@@ -671,6 +671,16 @@ export default function App() {
   const [expenseSearch, setExpenseSearch] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(() => toMonthKey(new Date()));
   const [activePage, setActivePage] = useState("planner");
+  const [isPhoneView, setIsPhoneView] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia("(max-width: 640px)").matches
+      : false
+  );
+  const [isFinanceOverviewCollapsed, setIsFinanceOverviewCollapsed] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia("(max-width: 640px)").matches
+      : false
+  );
   const [theme, setTheme] = useState(() => loadTheme());
   const [undoDepth, setUndoDepth] = useState(0);
   const [authUser, setAuthUser] = useState(null);
@@ -1852,6 +1862,24 @@ export default function App() {
   ]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const handleChange = (event) => {
+      setIsPhoneView(event.matches);
+      setIsFinanceOverviewCollapsed(event.matches ? true : false);
+    };
+
+    setIsPhoneView(mediaQuery.matches);
+    setIsFinanceOverviewCollapsed(mediaQuery.matches ? true : false);
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  useEffect(() => {
     if (typeof document === "undefined") {
       return;
     }
@@ -1928,11 +1956,37 @@ export default function App() {
       {activePage === "planner" && (
         <div className="planner-shell">
       <section className="card finance-overview">
-        <div className="list-header">
+        <div className="list-header finance-overview-head">
           <h3>Financial Overview</h3>
-          <span>This month at a glance</span>
+          <div className="finance-head-actions">
+            <span>This month at a glance</span>
+            {isPhoneView ? (
+              <button
+                className="ghost finance-toggle"
+                onClick={() => setIsFinanceOverviewCollapsed((current) => !current)}
+              >
+                {isFinanceOverviewCollapsed ? "Expand Full View" : "Show Simple View"}
+              </button>
+            ) : null}
+          </div>
         </div>
 
+        {isPhoneView && isFinanceOverviewCollapsed ? (
+          <div className="finance-simple-grid">
+            <article className="finance-simple-item">
+              <span>Salary</span>
+              <strong>{formatCurrency(salary)}</strong>
+            </article>
+            <article className="finance-simple-item">
+              <span>Total Monthly Expense</span>
+              <strong>{formatCurrency(monthlyExpenseTotal)}</strong>
+            </article>
+            <article className="finance-simple-item">
+              <span>Total Saving</span>
+              <strong>{formatCurrency(totalSavingsWithCurrentExcess)}</strong>
+            </article>
+          </div>
+        ) : (
         <div className="finance-grid">
           <article className="finance-block">
             <h4><span className="icon-pill"><SalaryIcon /></span> Salary</h4>
@@ -2005,6 +2059,7 @@ export default function App() {
             </div>
           </article>
         </div>
+        )}
       </section>
 
       <section className="dashboard-grid single">
