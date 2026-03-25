@@ -1072,6 +1072,20 @@ button.danger:hover {
   font-family: inherit;
 }
 
+.daily-spend-form input[type="date"] {
+  padding-left: 0.98rem;
+  padding-right: 1.05rem;
+}
+
+.daily-spend-form input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: 0.45rem;
+  margin-right: 0.2rem;
+}
+
+.daily-spend-form input[type="date"]::-webkit-datetime-edit {
+  padding-left: 0.05rem;
+}
+
 .daily-amount-field {
   min-width: 0;
 }
@@ -2054,6 +2068,10 @@ button.danger:hover {
     min-width: 0;
   }
 
+  .calendar-weekdays {
+    display: none;
+  }
+
   .calendar-cell {
     min-height: 72px;
   }
@@ -2461,6 +2479,54 @@ button.danger:hover {
 
   .log-row-head {
     font-size: 0.8rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.48rem;
+  }
+
+  .calendar-cell.empty {
+    display: block;
+  }
+
+  .calendar-cell {
+    min-height: 76px;
+    padding: 0.52rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 0.16rem;
+  }
+
+  .calendar-cell.has-spend {
+    border-color: rgba(45, 95, 136, 0.28);
+    box-shadow: 0 6px 16px rgba(26, 39, 50, 0.06);
+  }
+
+  .calendar-cell .day-number {
+    min-width: 2.1rem;
+    padding: 0.22rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(45, 95, 136, 0.08);
+  }
+
+  .calendar-cell strong {
+    text-align: left;
+  }
+
+  .calendar-cell small {
+    text-align: left;
+  }
+
+  [data-theme="dark"] .calendar-cell .day-number {
+    background: rgba(91, 158, 209, 0.16);
+  }
+
+  [data-theme="dark"] .calendar-cell.has-spend {
+    border-color: rgba(102, 166, 218, 0.5);
+    background: linear-gradient(160deg, rgba(31, 53, 73, 0.94), rgba(20, 38, 54, 0.94));
   }
 }
 
