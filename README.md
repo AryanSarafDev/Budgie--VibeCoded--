@@ -6,6 +6,8 @@ Budgie is a monthly savings and goal-planning app that helps you decide where yo
 
 This project is vibe coded: built through rapid iteration with hands-on product feedback and AI-assisted development.
 
+Deployed here --> https://budgie-vibe-coded.vercel.app/
+
 <img width="1428" height="1297" alt="image" src="https://github.com/user-attachments/assets/0dbd2c33-6385-4bfa-9763-cd1c7542141f" />
 
 <img width="1429" height="1152" alt="image" src="https://github.com/user-attachments/assets/4a65d1ba-2731-4b85-90c3-29ba41879215" />
