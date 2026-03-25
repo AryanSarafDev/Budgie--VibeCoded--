@@ -94,6 +94,77 @@ body {
   gap: 0.75rem;
 }
 
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.auth-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.76);
+  border-radius: 999px;
+  padding: 0.35rem 0.45rem 0.35rem 0.7rem;
+}
+
+.auth-user {
+  font-size: 0.8rem;
+  color: #2c4456;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-btn {
+  padding: 0.45rem 0.78rem;
+  font-size: 0.79rem;
+}
+
+.sync-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid transparent;
+}
+
+.sync-local {
+  background: rgba(53, 87, 108, 0.1);
+  color: #34566f;
+  border-color: rgba(53, 87, 108, 0.18);
+}
+
+.sync-syncing {
+  background: rgba(195, 145, 67, 0.16);
+  color: #7c4e0e;
+  border-color: rgba(195, 145, 67, 0.3);
+}
+
+.sync-synced {
+  background: rgba(84, 154, 99, 0.16);
+  color: #275637;
+  border-color: rgba(84, 154, 99, 0.28);
+}
+
+.sync-error {
+  background: rgba(182, 89, 65, 0.15);
+  color: #7b2e1e;
+  border-color: rgba(182, 89, 65, 0.28);
+}
+
+.auth-error {
+  margin: 0.45rem 0 0;
+  color: #9e3d25;
+  font-size: 0.86rem;
+}
+
 .brand-title {
   display: flex;
   align-items: center;
@@ -1380,6 +1451,23 @@ button.danger:hover {
   .hero-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .hero-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .auth-chip {
+    width: 100%;
+    border-radius: 14px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .auth-user {
+    max-width: 100%;
   }
 
   .brand-mark {

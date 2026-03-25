@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import logo from "./assets/Logo.png";
+import { auth, db, googleProvider } from "./firebase";
 
 const PRIORITY_OPTIONS = [
   { label: "High", value: "high", weight: 3 },
@@ -92,6 +95,7 @@ const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const AI_REQUEST_COOLDOWN_MS = 60000;
 const LOG_STORAGE_LIMIT = 500;
 const MAX_UNDO_STEPS = 40;
+const CLOUD_SAVE_DEBOUNCE_MS = 800;
 const LOG_LEVEL_OPTIONS = ["ALL", "INFO", "WARN", "ERROR"];
 const LOG_TYPE_OPTIONS = ["ALL", "SYSTEM", "AI", "GOAL", "EXPENSE", "PURCHASE"];
 const EXPENSE_HISTORY_TYPE_OPTIONS = ["ALL", "EXPENSE", "PURCHASE"];
@@ -652,10 +656,16 @@ export default function App() {
   const [calendarMonth, setCalendarMonth] = useState(() => toMonthKey(new Date()));
   const [activePage, setActivePage] = useState("planner");
   const [undoDepth, setUndoDepth] = useState(0);
+  const [authUser, setAuthUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState("");
+  const [cloudLoadDone, setCloudLoadDone] = useState(false);
+  const [cloudStatus, setCloudStatus] = useState("local");
   const aiRequestLockRef = useRef(false);
   const lastAiRequestAtRef = useRef(0);
   const geminiBlockedUntilRef = useRef(0);
   const undoStackRef = useRef([]);
+  const cloudSaveTimerRef = useRef(null);
 
   const buildUndoSnapshot = () => ({
     salary,
@@ -1659,22 +1669,170 @@ export default function App() {
     setLogs((current) => current.filter((entry) => entry.type !== "EXPENSE" && entry.type !== "PURCHASE"));
   };
 
+  const buildPersistedPayload = () => ({
+    salary,
+    expenses,
+    monthsProcessed,
+    monthPoolSpent,
+    extraSavings,
+    spentOnPurchases,
+    purchaseHistory,
+    logs,
+    items
+  });
+
+  const applyPersistedPayload = (payload) => {
+    if (!payload || typeof payload !== "object") {
+      return;
+    }
+
+    setSalary(typeof payload.salary === "number" ? payload.salary : 0);
+    setExpenses(Array.isArray(payload.expenses) ? payload.expenses : buildDefaultExpenses());
+    setMonthsProcessed(typeof payload.monthsProcessed === "number" ? payload.monthsProcessed : 0);
+    setMonthPoolSpent(typeof payload.monthPoolSpent === "number" ? payload.monthPoolSpent : 0);
+    setExtraSavings(typeof payload.extraSavings === "number" ? payload.extraSavings : 0);
+    setSpentOnPurchases(typeof payload.spentOnPurchases === "number" ? payload.spentOnPurchases : 0);
+    setPurchaseHistory(Array.isArray(payload.purchaseHistory) ? payload.purchaseHistory : []);
+    setLogs(Array.isArray(payload.logs) ? payload.logs : []);
+    setItems(Array.isArray(payload.items) ? payload.items.map(normalizeGoal) : []);
+  };
+
+  const signInWithGoogle = async () => {
+    if (!auth || !googleProvider) {
+      setAuthError("Firebase Auth is not configured. Add VITE_FIREBASE_* values in .env.");
+      return;
+    }
+
+    setAuthError("");
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Google sign-in failed.";
+      setAuthError(message);
+    }
+  };
+
+  const signOutFromGoogle = async () => {
+    if (!auth) {
+      return;
+    }
+
+    setAuthError("");
+    try {
+      await signOut(auth);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Sign-out failed.";
+      setAuthError(message);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        salary,
-        expenses,
-        monthsProcessed,
-        monthPoolSpent,
-        extraSavings,
-        spentOnPurchases,
-        purchaseHistory,
-        logs,
-        items
-      })
-    );
-  }, [salary, expenses, monthsProcessed, monthPoolSpent, extraSavings, spentOnPurchases, purchaseHistory, logs, items]);
+    if (!auth) {
+      setAuthLoading(false);
+      setCloudStatus("local");
+      setCloudLoadDone(true);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setAuthUser(user);
+      setAuthLoading(false);
+      setAuthError("");
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!authUser || !db) {
+      setCloudLoadDone(true);
+      setCloudStatus("local");
+      return;
+    }
+
+    let cancelled = false;
+    const hydrate = async () => {
+      setCloudLoadDone(false);
+      setCloudStatus("syncing");
+      try {
+        const userRef = doc(db, "budgieUsers", authUser.uid);
+        const snapshot = await getDoc(userRef);
+        const remotePayload = snapshot.data()?.plannerState;
+
+        if (!cancelled && remotePayload && typeof remotePayload === "object") {
+          applyPersistedPayload(remotePayload);
+        }
+
+        if (!cancelled) {
+          setCloudStatus("synced");
+        }
+      } catch {
+        if (!cancelled) {
+          setCloudStatus("error");
+          setAuthError("Cloud load failed. Using local data only for now.");
+        }
+      } finally {
+        if (!cancelled) {
+          setCloudLoadDone(true);
+        }
+      }
+    };
+
+    hydrate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser]);
+
+  useEffect(() => {
+    const payload = buildPersistedPayload();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+    if (!authUser || !db || !cloudLoadDone) {
+      return;
+    }
+
+    if (cloudSaveTimerRef.current) {
+      clearTimeout(cloudSaveTimerRef.current);
+    }
+
+    setCloudStatus("syncing");
+    cloudSaveTimerRef.current = setTimeout(async () => {
+      try {
+        await setDoc(
+          doc(db, "budgieUsers", authUser.uid),
+          {
+            plannerState: payload,
+            updatedAt: serverTimestamp(),
+            email: authUser.email || null
+          },
+          { merge: true }
+        );
+        setCloudStatus("synced");
+      } catch {
+        setCloudStatus("error");
+      }
+    }, CLOUD_SAVE_DEBOUNCE_MS);
+
+    return () => {
+      if (cloudSaveTimerRef.current) {
+        clearTimeout(cloudSaveTimerRef.current);
+      }
+    };
+  }, [
+    salary,
+    expenses,
+    monthsProcessed,
+    monthPoolSpent,
+    extraSavings,
+    spentOnPurchases,
+    purchaseHistory,
+    logs,
+    items,
+    authUser,
+    cloudLoadDone
+  ]);
 
   return (
     <div className="page">
@@ -1692,10 +1850,32 @@ export default function App() {
               <span>Smart Savings Planner</span>
             </div>
           </div>
-          <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
-            Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
-          </button>
+          <div className="hero-actions">
+            <div className="auth-chip">
+              <span className="auth-user">
+                {authLoading
+                  ? "Checking login..."
+                  : authUser?.email || "Local mode"}
+              </span>
+              <span className={`sync-pill sync-${cloudStatus}`}>
+                {authUser ? `Cloud: ${cloudStatus}` : "Cloud: off"}
+              </span>
+              {authUser ? (
+                <button className="ghost auth-btn" onClick={signOutFromGoogle}>
+                  Sign out
+                </button>
+              ) : (
+                <button className="ghost auth-btn" onClick={signInWithGoogle} disabled={authLoading}>
+                  Sign in with Google
+                </button>
+              )}
+            </div>
+            <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
+              Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
+            </button>
+          </div>
         </div>
+        {authError ? <p className="auth-error">{authError}</p> : null}
         <p>Track monthly salary, deduct expenses, and auto-distribute your savings into your top goals.</p>
         <div className="page-switch">
           <button

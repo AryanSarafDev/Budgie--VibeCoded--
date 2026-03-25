@@ -46,6 +46,7 @@ Budgie helps you:
 - Purchase workflow and history
 - Analytics page for spending trends and categories
 - Local persistence (state survives refresh)
+- Firebase Google Login + Firestore cloud sync (optional)
 - AI advisor integration with fallback when API is unavailable or rate-limited
 
 ## Tech Stack
@@ -54,6 +55,7 @@ Budgie helps you:
 - Vite
 - Plain CSS
 - Gemini API (optional, via environment variable)
+- Firebase Auth + Firestore (optional, via environment variables)
 
 ## Getting Started
 
@@ -63,12 +65,19 @@ Budgie helps you:
 npm install
 ```
 
-### 2. Set environment variables (optional for AI)
+### 2. Set environment variables (optional for AI + Firebase)
 
 Create a `.env` file in project root:
 
 ```env
 VITE_GEMINI_API_KEY=your_api_key_here
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project-id.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_firebase_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
 
 ### 3. Start development server
@@ -83,10 +92,50 @@ npm run dev
 npm run build
 ```
 
+## Firebase Setup (Cloud Sync)
+
+Cloud saving is optional. If you skip this section, Budgie still works with local storage.
+
+1. Create or select your Firebase project.
+2. In Authentication, enable Google as a sign-in provider.
+3. In Firestore Database, create a database in production mode or test mode.
+4. Add the Firebase web app config values to your local `.env`.
+5. Start the app and sign in with Google from the top-right login button.
+
+### Firestore Rules
+
+Use rules like this so each user can only read/write their own data:
+
+```txt
+rules_version = '2';
+service cloud.firestore {
+   match /databases/{database}/documents {
+      match /budgieUsers/{userId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+   }
+}
+```
+
+### Cloud Data Shape
+
+- Collection: `budgieUsers`
+- Document ID: authenticated Firebase UID
+- Main field: `plannerState`
+- Metadata fields: `updatedAt`, `email`
+
 ## Notes
 
 - App data is stored in browser localStorage.
+- If you sign in with Google, planner data is also synced to Firestore (`budgieUsers/{uid}`).
+- Enable Google as a Sign-in provider in Firebase Console > Authentication before using login.
 - If AI quota is exhausted, Budgie automatically falls back to a local smart recommendation plan.
+- If cloud sync fails, the app continues in local mode and keeps your data in localStorage.
+
+## Security
+
+- Keep `.env` private and never commit secrets.
+- If keys are ever shared publicly, rotate/regenerate them in provider consoles.
 
 ## Status
 
