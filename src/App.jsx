@@ -2149,15 +2149,15 @@ export default function App() {
           <div className="finance-simple-wrap" aria-hidden={!isPhoneView || !isFinanceOverviewCollapsed}>
             <div className="finance-simple-grid">
               <article className="finance-simple-item">
-                <span>Salary</span>
+                <span className="finance-simple-label">Salary</span>
                 <strong>{formatCurrency(salary)}</strong>
               </article>
               <article className="finance-simple-item">
-                <span>Total Monthly Expense</span>
+                <span className="finance-simple-label">Monthly Expense</span>
                 <strong>{formatCurrency(monthlyExpenseTotal)}</strong>
               </article>
               <article className="finance-simple-item">
-                <span>Total Saving</span>
+                <span className="finance-simple-label">Total Savings</span>
                 <strong>{formatCurrency(totalSavingsWithCurrentExcess)}</strong>
               </article>
             </div>

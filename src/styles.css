@@ -376,6 +376,16 @@ body {
   gap: 0.2rem;
 }
 
+.finance-overview-copy h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+}
+
+.finance-overview-copy h3 .icon-pill.inline {
+  margin-right: 0;
+}
+
 .finance-subtitle {
   font-size: 0.86rem;
   color: var(--muted);
@@ -503,6 +513,22 @@ body {
   font-size: 0.72rem;
   margin-bottom: 0.2rem;
   white-space: nowrap;
+  line-height: 1.2;
+}
+
+.finance-simple-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.26rem;
+  min-height: 1.1rem;
+}
+
+.finance-simple-label .icon-svg,
+.finance-simple-label .icon-inline {
+  width: 0.78rem;
+  height: 0.78rem;
+  color: var(--muted);
 }
 
 .finance-simple-item strong {
@@ -1986,6 +2012,15 @@ button.danger:hover {
     min-height: 70px;
   }
 
+  .finance-simple-item span {
+    font-size: 0.68rem;
+  }
+
+  .finance-simple-label {
+    gap: 0.22rem;
+    min-height: 1.05rem;
+  }
+
   .finance-overview,
   .dashboard-grid .card,
   .goals-section,
@@ -2010,6 +2045,17 @@ button.danger:hover {
   h3 {
     font-size: 1.08rem;
     margin-bottom: 0.65rem;
+  }
+
+  .hero p,
+  .finance-subtitle,
+  .section-head p,
+  .goal-helper,
+  .allocation-note,
+  .ai-helper-text,
+  .daily-spend-meta,
+  .calendar-summary {
+    display: none;
   }
 
   .expense-form {
