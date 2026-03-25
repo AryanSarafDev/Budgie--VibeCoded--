@@ -347,6 +347,55 @@ body {
   white-space: nowrap;
 }
 
+.finance-anim-shell {
+  margin-top: 0.55rem;
+}
+
+.finance-simple-wrap,
+.finance-full-wrap {
+  overflow: hidden;
+  transition: max-height 0.34s ease, opacity 0.26s ease, transform 0.34s ease;
+}
+
+.finance-anim-shell.desktop .finance-simple-wrap {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.finance-anim-shell.desktop .finance-full-wrap {
+  max-height: 1400px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.finance-anim-shell.phone.expanded .finance-simple-wrap {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.finance-anim-shell.phone.expanded .finance-full-wrap {
+  max-height: 1400px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.finance-anim-shell.phone.collapsed .finance-simple-wrap {
+  max-height: 220px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.finance-anim-shell.phone.collapsed .finance-full-wrap {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
 .finance-simple-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1723,6 +1772,10 @@ button.danger:hover {
     gap: 0.42rem;
   }
 
+  .finance-anim-shell.phone.expanded .finance-full-wrap {
+    max-height: 1900px;
+  }
+
   .finance-simple-item {
     padding: 0.62rem 0.66rem;
     min-height: 70px;
@@ -1851,5 +1904,12 @@ button.danger:hover {
 
   .log-row-head {
     font-size: 0.74rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finance-simple-wrap,
+  .finance-full-wrap {
+    transition: none;
   }
 }

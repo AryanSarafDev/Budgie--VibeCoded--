@@ -1971,22 +1971,29 @@ export default function App() {
           </div>
         </div>
 
-        {isPhoneView && isFinanceOverviewCollapsed ? (
-          <div className="finance-simple-grid">
-            <article className="finance-simple-item">
-              <span>Salary</span>
-              <strong>{formatCurrency(salary)}</strong>
-            </article>
-            <article className="finance-simple-item">
-              <span>Total Monthly Expense</span>
-              <strong>{formatCurrency(monthlyExpenseTotal)}</strong>
-            </article>
-            <article className="finance-simple-item">
-              <span>Total Saving</span>
-              <strong>{formatCurrency(totalSavingsWithCurrentExcess)}</strong>
-            </article>
+        <div
+          className={`finance-anim-shell ${isPhoneView ? "phone" : "desktop"} ${
+            isFinanceOverviewCollapsed ? "collapsed" : "expanded"
+          }`}
+        >
+          <div className="finance-simple-wrap" aria-hidden={!isPhoneView || !isFinanceOverviewCollapsed}>
+            <div className="finance-simple-grid">
+              <article className="finance-simple-item">
+                <span>Salary</span>
+                <strong>{formatCurrency(salary)}</strong>
+              </article>
+              <article className="finance-simple-item">
+                <span>Total Monthly Expense</span>
+                <strong>{formatCurrency(monthlyExpenseTotal)}</strong>
+              </article>
+              <article className="finance-simple-item">
+                <span>Total Saving</span>
+                <strong>{formatCurrency(totalSavingsWithCurrentExcess)}</strong>
+              </article>
+            </div>
           </div>
-        ) : (
+
+          <div className="finance-full-wrap" aria-hidden={isPhoneView && isFinanceOverviewCollapsed}>
         <div className="finance-grid">
           <article className="finance-block">
             <h4><span className="icon-pill"><SalaryIcon /></span> Salary</h4>
@@ -2059,7 +2066,8 @@ export default function App() {
             </div>
           </article>
         </div>
-        )}
+          </div>
+        </div>
       </section>
 
       <section className="dashboard-grid single">
