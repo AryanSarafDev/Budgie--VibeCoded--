@@ -311,6 +311,12 @@ body {
   gap: 0.65rem;
 }
 
+.hero-utility {
+  margin-top: 0.65rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .undo-top {
   white-space: nowrap;
 }
@@ -332,6 +338,16 @@ body {
 
 .finance-overview-head {
   align-items: flex-start;
+}
+
+.finance-overview-copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.finance-subtitle {
+  font-size: 0.86rem;
+  color: var(--muted);
 }
 
 .finance-head-actions {
@@ -1643,6 +1659,10 @@ button.danger:hover {
     align-items: stretch;
   }
 
+  .hero-utility {
+    justify-content: flex-start;
+  }
+
   .auth-chip {
     width: 100%;
     border-radius: 14px;
@@ -1706,17 +1726,17 @@ button.danger:hover {
   }
 
   .hero {
-    padding: 1.1rem 0.95rem;
+    padding: 0.95rem 0.9rem;
     margin-bottom: 0.55rem;
   }
 
   .hero h1 {
-    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    font-size: clamp(1.5rem, 4vw, 1.9rem);
   }
 
   .hero p {
     margin-top: 0.35rem;
-    font-size: 0.88rem;
+    font-size: 0.84rem;
   }
 
   .hero-head {
@@ -1725,26 +1745,76 @@ button.danger:hover {
 
   .hero-actions {
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.42rem;
+    align-items: start;
   }
 
-  .hero-actions button {
+  .hero-actions > button {
     width: 100%;
   }
 
   .auth-chip {
     width: 100%;
-    border-radius: 12px;
+    grid-column: 1 / -1;
+    border-radius: 10px;
+    padding: 0.42rem 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.38rem;
+    align-items: center;
   }
 
   .auth-btn {
+    width: auto;
+    justify-self: end;
+    padding: 0.4rem 0.62rem;
+  }
+
+  .auth-user {
+    grid-column: 1 / -1;
+    white-space: normal;
+    line-height: 1.2;
+    font-size: 0.76rem;
+  }
+
+  .sync-pill {
+    font-size: 0.68rem;
+    padding: 0.18rem 0.42rem;
+  }
+
+  .theme-toggle,
+  .undo-top {
+    padding: 0.56rem 0.68rem;
+    font-size: 0.82rem;
+  }
+
+  .hero-utility {
+    margin-top: 0.5rem;
+  }
+
+  .hero-utility .undo-top {
     width: 100%;
   }
 
   .brand-mark {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .brand-title {
+    gap: 0.72rem;
+  }
+
+  .brand-copy span {
+    font-size: 0.71rem;
+  }
+
+  .page-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
   }
 
   .page > section {
@@ -1756,10 +1826,7 @@ button.danger:hover {
   }
 
   .finance-head-actions {
-    width: 100%;
     margin-left: 0;
-    justify-content: space-between;
-    flex-wrap: wrap;
   }
 
   .finance-toggle {

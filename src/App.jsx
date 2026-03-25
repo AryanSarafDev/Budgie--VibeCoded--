@@ -1930,13 +1930,15 @@ export default function App() {
                 </button>
               )}
             </div>
-            <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
-              Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
-            </button>
           </div>
         </div>
         {authError ? <p className="auth-error">{authError}</p> : null}
         <p>Track monthly salary, deduct expenses, and auto-distribute your savings into your top goals.</p>
+        <div className="hero-utility">
+          <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
+            Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
+          </button>
+        </div>
         <div className="page-switch">
           <button
             className={activePage === "planner" ? "switch active" : "switch"}
@@ -1957,9 +1959,11 @@ export default function App() {
         <div className="planner-shell">
       <section className="card finance-overview">
         <div className="list-header finance-overview-head">
-          <h3>Financial Overview</h3>
+          <div className="finance-overview-copy">
+            <h3>Financial Overview</h3>
+            <span className="finance-subtitle">This month at a glance</span>
+          </div>
           <div className="finance-head-actions">
-            <span>This month at a glance</span>
             {isPhoneView ? (
               <button
                 className="ghost finance-toggle"
