@@ -17,6 +17,82 @@
   --radius-md: 12px;
 }
 
+[data-theme="dark"] {
+  --bg-top: #0f1720;
+  --bg-bottom: #0b1118;
+  --panel: rgba(20, 30, 40, 0.9);
+  --panel-strong: #172330;
+  --ink: #dbe8f4;
+  --muted: #9eb1c0;
+  --accent: #5b9ed1;
+  --accent-soft: #4d8297;
+  --accent-2: #d18962;
+  --border: rgba(91, 158, 209, 0.22);
+  --line: rgba(91, 158, 209, 0.2);
+  --shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .finance-block,
+[data-theme="dark"] .purchase-history,
+[data-theme="dark"] .daily-spend-panel,
+[data-theme="dark"] .goal-form,
+[data-theme="dark"] .goal-card,
+[data-theme="dark"] .analysis-card,
+[data-theme="dark"] .calendar-cell,
+[data-theme="dark"] .ai-result,
+[data-theme="dark"] .ai-insight,
+[data-theme="dark"] .log-row,
+[data-theme="dark"] .engine-stat,
+[data-theme="dark"] .auth-chip,
+[data-theme="dark"] .expense-row {
+  background: rgba(16, 27, 37, 0.9);
+  border-color: var(--line);
+}
+
+[data-theme="dark"] .finance-block h4,
+[data-theme="dark"] .goal-head h4,
+[data-theme="dark"] .analysis-card h4,
+[data-theme="dark"] .engine-stat strong,
+[data-theme="dark"] .calendar-cell strong,
+[data-theme="dark"] .auth-user,
+[data-theme="dark"] .goal-card p,
+[data-theme="dark"] .log-row p {
+  color: var(--ink);
+}
+
+[data-theme="dark"] .goal-form label,
+[data-theme="dark"] .daily-spend-form label,
+[data-theme="dark"] .section-head p,
+[data-theme="dark"] .list-header span,
+[data-theme="dark"] .allocation-note,
+[data-theme="dark"] .goal-helper,
+[data-theme="dark"] .calendar-summary,
+[data-theme="dark"] .calendar-cell .day-number,
+[data-theme="dark"] .calendar-cell small,
+[data-theme="dark"] .log-row-head,
+[data-theme="dark"] .engine-stat span,
+[data-theme="dark"] .ai-helper-text,
+[data-theme="dark"] .ai-subhead,
+[data-theme="dark"] .daily-spend-meta {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .finance-block input,
+[data-theme="dark"] .metric input,
+[data-theme="dark"] .goal-form input,
+[data-theme="dark"] .goal-form select,
+[data-theme="dark"] .log-toolbar select,
+[data-theme="dark"] .log-toolbar input,
+[data-theme="dark"] .daily-spend-form input {
+  background: rgba(11, 20, 28, 0.96);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+[data-theme="dark"] input::placeholder {
+  color: #90a4b5;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -30,6 +106,7 @@ body {
     radial-gradient(circle at 10% 10%, rgba(45, 95, 136, 0.06), rgba(45, 95, 136, 0) 45%),
     radial-gradient(circle at 90% 80%, rgba(180, 111, 83, 0.08), rgba(180, 111, 83, 0) 50%),
     linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .page {
@@ -98,6 +175,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.55rem;
+}
+
+.theme-toggle {
+  white-space: nowrap;
 }
 
 .auth-chip {
@@ -538,29 +619,31 @@ button.danger:hover {
 }
 
 .engine-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.62rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
   margin-bottom: 1.1rem;
 }
 
 .engine-stat {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.84);
-  padding: 0.7rem 0.78rem;
+  border: 1px solid rgba(45, 95, 136, 0.22);
+  border-radius: 999px;
+  background: rgba(235, 245, 252, 0.86);
+  padding: 0.4rem 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .engine-stat span {
-  display: block;
   color: var(--muted);
-  font-size: 0.8rem;
-  margin-bottom: 0.25rem;
+  font-size: 0.77rem;
+  line-height: 1;
 }
 
 .engine-stat strong {
-  font-size: 1.02rem;
-  letter-spacing: -0.01em;
+  font-size: 0.84rem;
+  letter-spacing: 0;
   color: #1f3342;
 }
 
@@ -1386,15 +1469,15 @@ button.danger:hover {
   }
 
   .engine-stat {
-    padding: 0.6rem 0.66rem;
+    padding: 0.36rem 0.62rem;
   }
 
   .engine-stat span {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
   }
 
   .engine-stat strong {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
   }
 
   .expense-list {
@@ -1500,7 +1583,7 @@ button.danger:hover {
   }
 
   .engine-stats {
-    grid-template-columns: 1fr;
+    justify-content: flex-start;
   }
 
   .goal-list {

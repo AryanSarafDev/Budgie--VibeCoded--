@@ -89,6 +89,7 @@ function AiIcon() {
 
 const round2 = (value) => Math.round(value * 100) / 100;
 const STORAGE_KEY = "saver-planner-state-v1";
+const THEME_STORAGE_KEY = "saver-theme-v1";
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -117,6 +118,21 @@ const loadSavedState = () => {
   } catch {
     return null;
   }
+};
+
+const loadTheme = () => {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (savedTheme === "dark" || savedTheme === "light") {
+    return savedTheme;
+  }
+
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 };
 
 const parseJsonFromText = (text) => {
@@ -655,6 +671,7 @@ export default function App() {
   const [expenseSearch, setExpenseSearch] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(() => toMonthKey(new Date()));
   const [activePage, setActivePage] = useState("planner");
+  const [theme, setTheme] = useState(() => loadTheme());
   const [undoDepth, setUndoDepth] = useState(0);
   const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -1834,6 +1851,15 @@ export default function App() {
     cloudLoadDone
   ]);
 
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
   return (
     <div className="page">
       <div className="bg-shape bg-shape-one" />
@@ -1851,6 +1877,12 @@ export default function App() {
             </div>
           </div>
           <div className="hero-actions">
+            <button
+              className="ghost theme-toggle"
+              onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+            >
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
             <div className="auth-chip">
               <span className="auth-user">
                 {authLoading
@@ -1982,40 +2014,6 @@ export default function App() {
             <p>Track progress, purchases, and run monthly allocation.</p>
           </div>
 
-          <div className="engine-stats" role="list" aria-label="Monthly progress stats">
-            <div className="engine-stat" role="listitem">
-              <span>Months processed</span>
-              <strong>{monthsProcessed}</strong>
-            </div>
-            <div className="engine-stat" role="listitem">
-              <span>Total saved</span>
-              <strong>{formatCurrency(totalSavings)}</strong>
-            </div>
-            <div className="engine-stat" role="listitem">
-              <span>Bought items total</span>
-              <strong>{formatCurrency(spentOnPurchases)}</strong>
-            </div>
-            <div className="engine-stat" role="listitem">
-              <span>Unassigned savings</span>
-              <strong>{formatCurrency(extraSavings)}</strong>
-            </div>
-          </div>
-
-          <div className="purchase-history">
-            <p><strong>Purchase History</strong></p>
-            {purchaseHistory.length === 0 ? (
-              <p className="empty">No purchases yet.</p>
-            ) : (
-              purchaseHistory.slice(0, 6).map((entry) => (
-                <div key={entry.id} className="purchase-row">
-                  <span>{entry.goalName}</span>
-                  <span>{formatCurrency(entry.amount)}</span>
-                  <span>{formatShortDate(entry.purchasedAt)}</span>
-                </div>
-              ))
-            )}
-          </div>
-
           <div className="daily-spend-panel">
             <div className="list-header">
               <h3>End-of-Day Spending</h3>
@@ -2068,6 +2066,40 @@ export default function App() {
               {" · "}
               Spent today: <strong>{formatCurrency(todaySpendTotal)}</strong>
             </p>
+          </div>
+
+          <div className="engine-stats" role="list" aria-label="Monthly progress stats">
+            <div className="engine-stat" role="listitem">
+              <span>Months processed</span>
+              <strong>{monthsProcessed}</strong>
+            </div>
+            <div className="engine-stat" role="listitem">
+              <span>Total saved</span>
+              <strong>{formatCurrency(totalSavings)}</strong>
+            </div>
+            <div className="engine-stat" role="listitem">
+              <span>Bought items total</span>
+              <strong>{formatCurrency(spentOnPurchases)}</strong>
+            </div>
+            <div className="engine-stat" role="listitem">
+              <span>Unassigned savings</span>
+              <strong>{formatCurrency(extraSavings)}</strong>
+            </div>
+          </div>
+
+          <div className="purchase-history">
+            <p><strong>Purchase History</strong></p>
+            {purchaseHistory.length === 0 ? (
+              <p className="empty">No purchases yet.</p>
+            ) : (
+              purchaseHistory.slice(0, 6).map((entry) => (
+                <div key={entry.id} className="purchase-row">
+                  <span>{entry.goalName}</span>
+                  <span>{formatCurrency(entry.amount)}</span>
+                  <span>{formatShortDate(entry.purchasedAt)}</span>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="button-row">
