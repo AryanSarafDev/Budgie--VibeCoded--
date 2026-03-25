@@ -1594,3 +1594,184 @@ button.danger:hover {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .page {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .bg-shape {
+    display: none;
+  }
+
+  .hero {
+    padding: 1.1rem 0.95rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
+  }
+
+  .hero p {
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+  }
+
+  .hero-head {
+    gap: 0.5rem;
+  }
+
+  .hero-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions button {
+    width: 100%;
+  }
+
+  .auth-chip {
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  .auth-btn {
+    width: 100%;
+  }
+
+  .brand-mark {
+    width: 72px;
+    height: 72px;
+  }
+
+  .page > section {
+    margin-bottom: 0.75rem;
+  }
+
+  .finance-overview,
+  .dashboard-grid .card,
+  .goals-section,
+  .log-section,
+  .analysis-card,
+  .goal-card,
+  .purchase-history,
+  .daily-spend-panel,
+  .ai-result {
+    padding: 0.85rem;
+  }
+
+  .finance-block {
+    padding: 0.78rem;
+  }
+
+  .finance-block h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-size: 1.08rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .expense-form {
+    grid-template-columns: 1fr auto;
+    gap: 0.4rem;
+  }
+
+  .expense-row {
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .expense-row .remove {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
+  .purchase-row {
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem;
+  }
+
+  .purchase-row > :nth-child(3) {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .goal-form,
+  .daily-spend-form,
+  .log-toolbar,
+  .button-row {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .button-row {
+    gap: 0.45rem;
+  }
+
+  .button-row button {
+    width: 100%;
+  }
+
+  button {
+    padding: 0.72rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .engine-stat {
+    padding: 0.3rem 0.56rem;
+  }
+
+  .engine-stat span {
+    font-size: 0.69rem;
+  }
+
+  .engine-stat strong {
+    font-size: 0.77rem;
+  }
+
+  .analysis-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .category-row {
+    grid-template-columns: 74px 1fr auto;
+  }
+
+  .calendar-grid {
+    gap: 0.26rem;
+  }
+
+  .calendar-cell {
+    min-height: 60px;
+    padding: 0.28rem;
+    gap: 0.15rem;
+  }
+
+  .calendar-cell .day-number {
+    font-size: 0.72rem;
+  }
+
+  .calendar-cell strong {
+    font-size: 0.68rem;
+  }
+
+  .calendar-cell small {
+    font-size: 0.62rem;
+  }
+
+  .log-row {
+    padding: 0.62rem;
+  }
+
+  .log-row-head {
+    font-size: 0.74rem;
+  }
+}
