@@ -8,6 +8,7 @@ This project is vibe coded: built through rapid iteration with hands-on product 
 
 Deployed here --> https://budgie-vibe-coded.vercel.app/
 
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/789b7604-aa3e-4f9d-81a9-abfccade6f2c" />
 <img width="1428" height="1297" alt="image" src="https://github.com/user-attachments/assets/0dbd2c33-6385-4bfa-9763-cd1c7542141f" />
 
 <img width="1429" height="1152" alt="image" src="https://github.com/user-attachments/assets/4a65d1ba-2731-4b85-90c3-29ba41879215" />
