@@ -221,6 +221,14 @@ function LogoutIcon() {
   );
 }
 
+function ToggleIcon({ expanded }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline toggle-icon">
+      <path d={expanded ? "M6.5 12h11" : "M6.5 12h11M12 6.5v11"} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const round2 = (value) => Math.round(value * 100) / 100;
 const STORAGE_KEY = "saver-planner-state-v1";
 const THEME_STORAGE_KEY = "saver-theme-v1";
@@ -769,6 +777,7 @@ export default function App() {
     note: ""
   }));
   const [dailySpendError, setDailySpendError] = useState("");
+  const [showDailyNote, setShowDailyNote] = useState(false);
   const [monthsProcessed, setMonthsProcessed] = useState(() =>
     typeof savedState?.monthsProcessed === "number" ? savedState.monthsProcessed : 0
   );
@@ -834,6 +843,7 @@ export default function App() {
     expenseForm,
     dailySpendForm,
     dailySpendError,
+    showDailyNote,
     monthsProcessed,
     monthPoolSpent,
     extraSavings,
@@ -864,6 +874,7 @@ export default function App() {
     setExpenseForm(snapshot.expenseForm);
     setDailySpendForm(snapshot.dailySpendForm);
     setDailySpendError(snapshot.dailySpendError);
+    setShowDailyNote(Boolean(snapshot.showDailyNote));
     setMonthsProcessed(snapshot.monthsProcessed);
     setMonthPoolSpent(snapshot.monthPoolSpent);
     setExtraSavings(snapshot.extraSavings);
@@ -1067,6 +1078,7 @@ export default function App() {
   const addDailySpending = (event) => {
     event.preventDefault();
     setDailySpendError("");
+    setShowDailyNote(false);
 
     const amountValue = Number(dailySpendForm.amount);
     if (!dailySpendForm.date || Number.isNaN(new Date(dailySpendForm.date).getTime())) {
@@ -2124,8 +2136,10 @@ export default function App() {
               <button
                 className="ghost finance-toggle"
                 onClick={() => setIsFinanceOverviewCollapsed((current) => !current)}
+                aria-label={isFinanceOverviewCollapsed ? "Expand financial overview" : "Collapse financial overview"}
+                title={isFinanceOverviewCollapsed ? "Expand financial overview" : "Collapse financial overview"}
               >
-                <span className="button-with-icon"><MonthIcon />{isFinanceOverviewCollapsed ? "Expand Full View" : "Show Simple View"}</span>
+                <ToggleIcon expanded={!isFinanceOverviewCollapsed} />
               </button>
             ) : null}
           </div>
@@ -2250,7 +2264,6 @@ export default function App() {
           <div className="daily-spend-panel">
             <div className="list-header">
               <h3><span className="icon-pill inline"><ExpenseIcon /></span>End-of-Day Spending</h3>
-              <span>Deducts from savings</span>
             </div>
 
             <form onSubmit={addDailySpending} className="daily-spend-form">
@@ -2265,58 +2278,61 @@ export default function App() {
                 />
               </label>
 
-              <label>
+              <label className="daily-amount-field">
                 Amount
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="450"
-                  value={dailySpendForm.amount}
-                  onChange={(event) =>
-                    setDailySpendForm((current) => ({ ...current, amount: event.target.value }))
-                  }
-                />
+                <div className="daily-amount-row">
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="450"
+                    value={dailySpendForm.amount}
+                    onChange={(event) =>
+                      setDailySpendForm((current) => ({ ...current, amount: event.target.value }))
+                    }
+                  />
+                  <button
+                    type="submit"
+                    className="daily-submit-icon"
+                    aria-label="Add daily spend"
+                    title="Add daily spend"
+                  >
+                    <PlusIcon />
+                  </button>
+                </div>
               </label>
 
-              <label>
-                Note (optional)
-                <input
-                  type="text"
-                  placeholder="Dinner, cab, snacks"
-                  value={dailySpendForm.note}
-                  onChange={(event) =>
-                    setDailySpendForm((current) => ({ ...current, note: event.target.value }))
-                  }
-                />
-              </label>
+              <button
+                type="button"
+                className="daily-note-link"
+                onClick={() => setShowDailyNote((current) => !current)}
+              >
+                {showDailyNote ? "Hide note" : "Add note"}
+              </button>
 
-              <button type="submit"><span className="button-with-icon"><PlusIcon />Add Daily Spend</span></button>
+              {showDailyNote ? (
+                <label className="daily-note-field">
+                  Note (optional)
+                  <input
+                    type="text"
+                    placeholder="Dinner, cab, snacks"
+                    value={dailySpendForm.note}
+                    onChange={(event) =>
+                      setDailySpendForm((current) => ({ ...current, note: event.target.value }))
+                    }
+                  />
+                </label>
+              ) : null}
+
             </form>
 
             {dailySpendError ? <p className="daily-spend-error">{dailySpendError}</p> : null}
-            <p className="daily-spend-meta">
-              Available savings now: <strong>{formatCurrency(round2(extraSavings + availableMonthExcess))}</strong>
-              {" · "}
-              Spent today: <strong>{formatCurrency(todaySpendTotal)}</strong>
-            </p>
-          </div>
-
-          <div className="engine-stats" role="list" aria-label="Monthly progress stats">
-            <div className="engine-stat" role="listitem">
-              <span>Months processed</span>
-              <strong>{monthsProcessed}</strong>
-            </div>
-            <div className="engine-stat" role="listitem">
-              <span>Total saved</span>
-              <strong>{formatCurrency(totalSavings)}</strong>
-            </div>
-            <div className="engine-stat" role="listitem">
-              <span>Bought items total</span>
-              <strong>{formatCurrency(spentOnPurchases)}</strong>
-            </div>
-            <div className="engine-stat" role="listitem">
-              <span>Unassigned savings</span>
-              <strong>{formatCurrency(extraSavings)}</strong>
+            <div className="daily-spend-chips" role="group" aria-label="Daily spending quick summary">
+              <span className="daily-spend-chip">
+                Available <strong>{formatCurrency(round2(extraSavings + availableMonthExcess))}</strong>
+              </span>
+              <span className="daily-spend-chip">
+                Today <strong>{formatCurrency(todaySpendTotal)}</strong>
+              </span>
             </div>
           </div>
 
@@ -2335,14 +2351,18 @@ export default function App() {
             )}
           </div>
 
-          <div className="button-row">
-            <button onClick={processMonth}><span className="button-with-icon"><NextIcon />Process Next Month</span></button>
-            <button className="ghost" onClick={resetProgress}>
-              <span className="button-with-icon"><ResetIcon />Reset Progress</span>
-            </button>
-            <button className="danger" onClick={hardResetApp}>
-              <span className="button-with-icon"><TrashIcon />Hard Reset</span>
-            </button>
+          <div className="month-actions-panel" role="group" aria-label="Month actions">
+            <div className="month-actions-row">
+              <button className="month-action-primary" onClick={processMonth}>
+                <span className="button-with-icon"><NextIcon />Process Next Month</span>
+              </button>
+              <button className="month-action-secondary" onClick={resetProgress}>
+                <span className="button-with-icon"><ResetIcon />Reset Progress</span>
+              </button>
+              <button className="month-action-danger" onClick={hardResetApp}>
+                <span className="button-with-icon"><TrashIcon />Hard Reset</span>
+              </button>
+            </div>
           </div>
 
           <div className="inline-ai">
@@ -2446,6 +2466,27 @@ export default function App() {
                 <pre>{aiRawText}</pre>
               </details>
             ) : null}
+          </div>
+        </article>
+
+        <article className="card month-stats-card">
+          <div className="engine-stats" role="list" aria-label="Monthly progress stats">
+            <div className="engine-stat" role="listitem">
+              <span>Months processed</span>
+              <strong>{monthsProcessed}</strong>
+            </div>
+            <div className="engine-stat" role="listitem">
+              <span>Total saved</span>
+              <strong>{formatCurrency(totalSavings)}</strong>
+            </div>
+            <div className="engine-stat" role="listitem">
+              <span>Bought items total</span>
+              <strong>{formatCurrency(spentOnPurchases)}</strong>
+            </div>
+            <div className="engine-stat" role="listitem">
+              <span>Unassigned savings</span>
+              <strong>{formatCurrency(extraSavings)}</strong>
+            </div>
           </div>
         </article>
       </section>
