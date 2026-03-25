@@ -15,6 +15,11 @@
   --shadow: 0 8px 22px rgba(26, 39, 50, 0.07);
   --radius-lg: 18px;
   --radius-md: 12px;
+  --icon-default: #27465f;
+  --icon-muted: #607789;
+  --icon-on-accent: #f7fbff;
+  --icon-on-danger: #fff1ee;
+  --icon-pill-fg: #ffffff;
 }
 
 [data-theme="dark"] {
@@ -30,6 +35,11 @@
   --border: rgba(91, 158, 209, 0.22);
   --line: rgba(91, 158, 209, 0.2);
   --shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+  --icon-default: #c4ddf1;
+  --icon-muted: #9db3c3;
+  --icon-on-accent: #f3f9ff;
+  --icon-on-danger: #fff4f1;
+  --icon-pill-fg: #f8fcff;
 }
 
 [data-theme="dark"] .finance-block,
@@ -92,6 +102,10 @@
 
 [data-theme="dark"] input::placeholder {
   color: #90a4b5;
+}
+
+[data-theme="dark"] .budget-track {
+  background: rgba(11, 20, 28, 0.95);
 }
 
 * {
@@ -168,14 +182,37 @@ body {
 .hero-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
+}
+
+.hero-left-cluster {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 0.55rem;
+}
+
+.hero-mini-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.top-mini-btn {
+  padding: 0.42rem 0.62rem;
+  font-size: 0.77rem;
+  border-radius: 10px;
+}
+
+.top-mini-btn .icon-inline {
+  width: 0.78rem;
+  height: 0.78rem;
 }
 
 .theme-toggle {
@@ -311,12 +348,6 @@ body {
   gap: 0.65rem;
 }
 
-.hero-utility {
-  margin-top: 0.65rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .undo-top {
   white-space: nowrap;
 }
@@ -361,6 +392,40 @@ body {
   padding: 0.45rem 0.72rem;
   font-size: 0.78rem;
   white-space: nowrap;
+}
+
+.budget-track {
+  margin-top: 0.52rem;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+}
+
+.budget-segment {
+  height: 100%;
+  display: block;
+}
+
+.budget-segment.expense {
+  background: linear-gradient(90deg, #c46b4f, #b35643);
+}
+
+.budget-segment.savings {
+  background: linear-gradient(90deg, #3c9a93, #2d5f88);
+}
+
+.budget-note {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.budget-note.warn {
+  color: #9e3d25;
 }
 
 .finance-anim-shell {
@@ -471,7 +536,7 @@ body {
   justify-content: center;
   font-size: 0.76rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--icon-pill-fg);
   background: linear-gradient(135deg, var(--accent), var(--accent-soft));
 }
 
@@ -486,6 +551,63 @@ body {
   width: 1rem;
   height: 1rem;
   display: block;
+  color: inherit;
+}
+
+.icon-inline {
+  width: 0.92rem;
+  height: 0.92rem;
+  display: block;
+  color: var(--icon-default);
+  flex-shrink: 0;
+}
+
+.button-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+}
+
+.button-with-icon .icon-inline,
+.button-with-icon .icon-svg {
+  color: currentColor;
+}
+
+.icon-pill .icon-inline,
+.icon-pill .icon-svg {
+  color: var(--icon-pill-fg);
+}
+
+.list-header h3 > .icon-inline,
+.section-head h3 > .icon-inline,
+.section-head h4 > .icon-inline {
+  color: var(--icon-default);
+}
+
+.list-header h3 .icon-pill .icon-inline,
+.list-header h3 .icon-pill .icon-svg,
+.section-head h3 .icon-pill .icon-inline,
+.section-head h3 .icon-pill .icon-svg,
+.section-head h4 .icon-pill .icon-inline,
+.section-head h4 .icon-pill .icon-svg {
+  color: var(--icon-pill-fg) !important;
+}
+
+.list-header span .icon-inline,
+.section-head p .icon-inline,
+.goal-helper .icon-inline,
+.daily-spend-meta .icon-inline {
+  color: var(--icon-muted);
+}
+
+.icon-pill.ai-overview-icon {
+  background: linear-gradient(135deg, #f2bf67, #d78a38);
+  color: var(--icon-pill-fg);
+}
+
+[data-theme="dark"] .icon-pill.ai-overview-icon {
+  color: var(--icon-pill-fg);
+  background: linear-gradient(135deg, #f6cc7a, #db9a47);
 }
 
 .metric {
@@ -721,6 +843,20 @@ button.switch {
   box-shadow: none;
 }
 
+button,
+button.switch.active {
+  color: var(--icon-on-accent);
+}
+
+button.ghost .icon-inline,
+button.switch .icon-inline {
+  color: var(--accent);
+}
+
+button.switch.active .icon-inline {
+  color: var(--icon-on-accent);
+}
+
 button.switch.active {
   background: linear-gradient(130deg, var(--accent), var(--accent-soft));
   color: #fff;
@@ -729,6 +865,10 @@ button.switch.active {
 button.danger {
   background: linear-gradient(130deg, #b35643, #8f2f23);
   color: #fff;
+}
+
+button.danger .icon-inline {
+  color: var(--icon-on-danger);
 }
 
 button.danger:hover {
@@ -1659,10 +1799,6 @@ button.danger:hover {
     align-items: stretch;
   }
 
-  .hero-utility {
-    justify-content: flex-start;
-  }
-
   .auth-chip {
     width: 100%;
     border-radius: 14px;
@@ -1790,12 +1926,14 @@ button.danger:hover {
     font-size: 0.82rem;
   }
 
-  .hero-utility {
-    margin-top: 0.5rem;
+  .hero-mini-actions {
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
-  .hero-utility .undo-top {
-    width: 100%;
+  .top-mini-btn {
+    padding: 0.4rem 0.56rem;
+    font-size: 0.76rem;
   }
 
   .brand-mark {

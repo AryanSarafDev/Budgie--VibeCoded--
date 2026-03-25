@@ -87,6 +87,140 @@ function AiIcon() {
   );
 }
 
+function PlannerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M4 5h7v6H4zM13 5h7v4h-7zM13 11h7v8h-7zM4 13h7v6H4z" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
+function AnalyticsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M4 18.5h16M7 15v3.5M12 9.5v9M17 6v12.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MonthIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M4.5 6.5h15v13h-15zM7.5 4.5v4M16.5 4.5v4M4.5 9.5h15" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function GoalIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
+function HistoryIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M4.5 12a7.5 7.5 0 1 0 2.3-5.4M4.5 4.8v4h4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 8.8v3.6l2.3 1.4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function TrendIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M4.5 18.5h15" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M6 15.5l4-4 3 2.5 5-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M5 6.5h14v12H5zM8 4.5v3M16 4.5v3M5 9.5h14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M12 5.5v13M5.5 12h13" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PrevIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M14.5 6.5L8.5 12l6 5.5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function NextIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M9.5 6.5l6 5.5-6 5.5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ResetIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M4.8 10a7.2 7.2 0 1 1-.3 4.7M4.8 5.2v4.6h4.6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M5.5 7.5h13M9 7.5v-2h6v2M8 7.5l.6 11h6.8l.6-11" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ExportIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M12 4.8v9.4M8.6 8.4L12 4.8l3.4 3.6M5.5 15.8v3h13v-3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ThemeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M12 4.5v2.2M12 17.3v2.2M5.8 12h2.2M16 12h2.2M7.5 7.5l1.5 1.5M15 15l1.5 1.5M7.5 16.5L9 15M15 9l1.5-1.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
+function LoginIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M13 6h4v12h-4M5.5 12h9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11.5 9.2L14.8 12l-3.3 2.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function LogoutIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-inline">
+      <path d="M13 6h4v12h-4M14.8 12H5.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8.8 9.2L5.5 12l3.3 2.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 const round2 = (value) => Math.round(value * 100) / 100;
 const STORAGE_KEY = "saver-planner-state-v1";
 const THEME_STORAGE_KEY = "saver-theme-v1";
@@ -789,6 +923,26 @@ export default function App() {
     () => Math.max(0, salary - monthlyExpenseTotal),
     [salary, monthlyExpenseTotal]
   );
+
+  const budgetVisual = useMemo(() => {
+    const safeSalary = Math.max(0, Number(salary) || 0);
+    const safeExpense = Math.max(0, Number(monthlyExpenseTotal) || 0);
+    const safeSavings = Math.max(0, Number(monthlyPool) || 0);
+
+    const spentPct = safeSalary > 0
+      ? round2((Math.min(safeSalary, safeExpense) / safeSalary) * 100)
+      : 0;
+    const savingsPct = safeSalary > 0
+      ? round2((Math.min(safeSalary, safeSavings) / safeSalary) * 100)
+      : 0;
+    const overspendAmount = Math.max(0, round2(safeExpense - safeSalary));
+
+    return {
+      spentPct,
+      savingsPct,
+      overspendAmount
+    };
+  }, [salary, monthlyExpenseTotal, monthlyPool]);
 
   const availableMonthExcess = useMemo(
     () => Math.max(0, round2(monthlyPool - monthPoolSpent)),
@@ -1895,22 +2049,29 @@ export default function App() {
 
       <header className="hero card">
         <div className="hero-head">
-          <div className="brand-title">
-            <div className="brand-mark">
-              <img src={logo} alt="Budgie logo" className="brand-logo" />
+          <div className="hero-left-cluster">
+            <div className="brand-title">
+              <div className="brand-mark">
+                <img src={logo} alt="Budgie logo" className="brand-logo" />
+              </div>
+              <div className="brand-copy">
+                <h1>Budgie</h1>
+                <span>Smart Savings Planner</span>
+              </div>
             </div>
-            <div className="brand-copy">
-              <h1>Budgie</h1>
-              <span>Smart Savings Planner</span>
+            <div className="hero-mini-actions">
+              <button
+                className="ghost theme-toggle top-mini-btn"
+                onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+              >
+                <span className="button-with-icon"><ThemeIcon />{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+              </button>
+              <button className="ghost undo-top top-mini-btn" onClick={undoLastAction} disabled={undoDepth === 0}>
+                <span className="button-with-icon"><ResetIcon />Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}</span>
+              </button>
             </div>
           </div>
           <div className="hero-actions">
-            <button
-              className="ghost theme-toggle"
-              onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
-            >
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-            </button>
             <div className="auth-chip">
               <span className="auth-user">
                 {authLoading
@@ -1922,11 +2083,11 @@ export default function App() {
               </span>
               {authUser ? (
                 <button className="ghost auth-btn" onClick={signOutFromGoogle}>
-                  Sign out
+                  <span className="button-with-icon"><LogoutIcon />Sign out</span>
                 </button>
               ) : (
                 <button className="ghost auth-btn" onClick={signInWithGoogle} disabled={authLoading}>
-                  Sign in with Google
+                  <span className="button-with-icon"><LoginIcon />Sign in with Google</span>
                 </button>
               )}
             </div>
@@ -1934,23 +2095,18 @@ export default function App() {
         </div>
         {authError ? <p className="auth-error">{authError}</p> : null}
         <p>Track monthly salary, deduct expenses, and auto-distribute your savings into your top goals.</p>
-        <div className="hero-utility">
-          <button className="ghost undo-top" onClick={undoLastAction} disabled={undoDepth === 0}>
-            Undo{undoDepth > 0 ? ` (${undoDepth})` : ""}
-          </button>
-        </div>
         <div className="page-switch">
           <button
             className={activePage === "planner" ? "switch active" : "switch"}
             onClick={() => setActivePage("planner")}
           >
-            Planner
+            <span className="button-with-icon"><PlannerIcon />Planner</span>
           </button>
           <button
             className={activePage === "analysis" ? "switch active" : "switch"}
             onClick={() => setActivePage("analysis")}
           >
-            Expense Analytics
+            <span className="button-with-icon"><AnalyticsIcon />Expense Analytics</span>
           </button>
         </div>
       </header>
@@ -1960,7 +2116,7 @@ export default function App() {
       <section className="card finance-overview">
         <div className="list-header finance-overview-head">
           <div className="finance-overview-copy">
-            <h3>Financial Overview</h3>
+            <h3><span className="icon-pill inline"><SalaryIcon /></span>Financial Overview</h3>
             <span className="finance-subtitle">This month at a glance</span>
           </div>
           <div className="finance-head-actions">
@@ -1969,11 +2125,21 @@ export default function App() {
                 className="ghost finance-toggle"
                 onClick={() => setIsFinanceOverviewCollapsed((current) => !current)}
               >
-                {isFinanceOverviewCollapsed ? "Expand Full View" : "Show Simple View"}
+                <span className="button-with-icon"><MonthIcon />{isFinanceOverviewCollapsed ? "Expand Full View" : "Show Simple View"}</span>
               </button>
             ) : null}
           </div>
         </div>
+
+        <div className="budget-track" role="img" aria-label="Monthly budget split between expenses and savings">
+          <span className="budget-segment expense" style={{ width: `${budgetVisual.spentPct}%` }} />
+          <span className="budget-segment savings" style={{ width: `${budgetVisual.savingsPct}%` }} />
+        </div>
+        {budgetVisual.overspendAmount > 0 ? (
+          <p className="budget-note warn">Overspending by {formatCurrency(budgetVisual.overspendAmount)} this month.</p>
+        ) : (
+          <p className="budget-note">Expenses and savings visualized from your monthly salary.</p>
+        )}
 
         <div
           className={`finance-anim-shell ${isPhoneView ? "phone" : "desktop"} ${
@@ -2077,13 +2243,13 @@ export default function App() {
       <section className="dashboard-grid single">
         <article className="card">
           <div className="section-head">
-            <h3>Month Engine</h3>
+            <h3><span className="icon-pill inline"><MonthIcon /></span>Month Engine</h3>
             <p>Track progress, purchases, and run monthly allocation.</p>
           </div>
 
           <div className="daily-spend-panel">
             <div className="list-header">
-              <h3>End-of-Day Spending</h3>
+              <h3><span className="icon-pill inline"><ExpenseIcon /></span>End-of-Day Spending</h3>
               <span>Deducts from savings</span>
             </div>
 
@@ -2124,7 +2290,7 @@ export default function App() {
                 />
               </label>
 
-              <button type="submit">Add Daily Spend</button>
+              <button type="submit"><span className="button-with-icon"><PlusIcon />Add Daily Spend</span></button>
             </form>
 
             {dailySpendError ? <p className="daily-spend-error">{dailySpendError}</p> : null}
@@ -2170,18 +2336,18 @@ export default function App() {
           </div>
 
           <div className="button-row">
-            <button onClick={processMonth}>Process Next Month</button>
+            <button onClick={processMonth}><span className="button-with-icon"><NextIcon />Process Next Month</span></button>
             <button className="ghost" onClick={resetProgress}>
-              Reset Progress
+              <span className="button-with-icon"><ResetIcon />Reset Progress</span>
             </button>
             <button className="danger" onClick={hardResetApp}>
-              Hard Reset
+              <span className="button-with-icon"><TrashIcon />Hard Reset</span>
             </button>
           </div>
 
           <div className="inline-ai">
             <div className="list-header">
-              <h3><span className="icon-pill inline"><AiIcon /></span> AI Advisor</h3>
+              <h3><span className="icon-pill inline ai-overview-icon"><AiIcon /></span> AI Advisor</h3>
               <span>{GEMINI_API_KEY ? "Gemini connected" : "No API key"}</span>
             </div>
 
@@ -2191,14 +2357,14 @@ export default function App() {
 
             <div className="button-row ai-buttons">
               <button onClick={runAiAdvisor} disabled={aiLoading}>
-                {aiLoading ? "Analyzing..." : "Generate AI Plan"}
+                <span className="button-with-icon"><AiIcon />{aiLoading ? "Analyzing..." : "Generate AI Plan"}</span>
               </button>
               <button
                 className="ghost"
                 onClick={applyAiPercentSuggestions}
                 disabled={!aiResult?.suggestedPercents?.length}
               >
-                Apply Suggested %
+                <span className="button-with-icon"><NextIcon />Apply Suggested %</span>
               </button>
             </div>
 
@@ -2234,11 +2400,11 @@ export default function App() {
 
                 {aiResult.goalInsights?.length > 0 ? (
                   <div className="ai-goal-insights">
-                    <p className="ai-subhead"><strong>Goal Timelines</strong></p>
+                    <p className="ai-subhead"><strong>Goal Insights</strong></p>
                     <div className="ai-insights-grid">
                       {aiResult.goalInsights.slice(0, 6).map((item) => (
                         <article className="ai-insight" key={item.goalName}>
-                          <h5>{item.goalName}</h5>
+                          <h4>{item.goalName}</h4>
                           <p>Remaining: {formatCurrency(item.remaining || 0)}</p>
                           <p>Monthly: {formatCurrency(item.monthlyContribution || 0)}</p>
                           <p>ETA: {item.etaMonths == null ? "No timeline" : `${item.etaMonths} month(s)`}</p>
@@ -2286,7 +2452,7 @@ export default function App() {
 
       <section className="card goals-section">
         <div className="list-header">
-          <h3>Goals & Smart Allocation</h3>
+          <h3><span className="icon-pill inline"><GoalIcon /></span>Goals & Smart Allocation</h3>
           <span>{items.length} goals</span>
         </div>
 
@@ -2342,7 +2508,7 @@ export default function App() {
             />
           </label>
 
-          <button type="submit">Add Goal</button>
+          <button type="submit"><span className="button-with-icon"><PlusIcon />Add Goal</span></button>
         </form>
 
         <p className="allocation-note">
@@ -2371,10 +2537,10 @@ export default function App() {
                         onClick={() => buyItem(item.id)}
                         disabled={!canBuyNow}
                       >
-                        Buy
+                        <span className="button-with-icon"><NextIcon />Buy</span>
                       </button>
                       <button className="remove" onClick={() => removeItem(item.id)}>
-                        Remove
+                        <span className="button-with-icon"><TrashIcon />Remove</span>
                       </button>
                     </div>
                   </div>
@@ -2414,64 +2580,20 @@ export default function App() {
       <div className="analysis-shell">
       <section className="card log-section">
         <div className="list-header">
-          <h3>Expense History & Analysis</h3>
+          <h3><span className="icon-pill inline"><HistoryIcon /></span>Expense History & Analysis</h3>
           <span>{expenseHistory.length} records</span>
-        </div>
-
-        <div className="analysis-grid">
-          <article className="analysis-card">
-            <h4>Monthly Spend Trend</h4>
-            {monthlySpendTrend.length === 0 ? (
-              <p className="empty">Not enough data for trend chart.</p>
-            ) : (
-              <div className="bar-chart">
-                {monthlySpendTrend.map((month) => (
-                  <div key={month.key} className="bar-item">
-                    <div
-                      className="bar"
-                      style={{ height: `${Math.max(6, (month.net / maxTrendValue) * 100)}%` }}
-                      title={`${month.label}: ${formatCurrency(month.net)}`}
-                    />
-                    <span>{month.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </article>
-
-          <article className="analysis-card">
-            <h4>Category Spend Split</h4>
-            {expenseCategoryTrend.length === 0 ? (
-              <p className="empty">No category data yet.</p>
-            ) : (
-              <div className="category-chart">
-                {expenseCategoryTrend.map((item) => (
-                  <div className="category-row" key={item.name}>
-                    <span>{item.name}</span>
-                    <div className="category-bar-wrap">
-                      <div
-                        className="category-bar"
-                        style={{ width: `${Math.max(4, (item.total / maxCategoryValue) * 100)}%` }}
-                      />
-                    </div>
-                    <span>{formatCurrency(item.total)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </article>
         </div>
 
         <article className="analysis-card spend-calendar-card">
           <div className="calendar-head">
-            <h4>Daily Expense Calendar</h4>
+            <h4><span className="icon-pill inline"><CalendarIcon /></span>Daily Expense Calendar</h4>
             <div className="calendar-controls">
               <button className="ghost" onClick={() => setCalendarMonth((value) => shiftMonthKey(value, -1))}>
-                Prev
+                <span className="button-with-icon"><PrevIcon />Prev</span>
               </button>
               <span>{calendarSnapshot.monthLabel}</span>
               <button className="ghost" onClick={() => setCalendarMonth((value) => shiftMonthKey(value, 1))}>
-                Next
+                <span className="button-with-icon"><NextIcon />Next</span>
               </button>
             </div>
           </div>
@@ -2515,6 +2637,50 @@ export default function App() {
           </div>
         </article>
 
+        <div className="analysis-grid">
+          <article className="analysis-card">
+            <h4><span className="icon-pill inline"><TrendIcon /></span>Monthly Spend Trend</h4>
+            {monthlySpendTrend.length === 0 ? (
+              <p className="empty">Not enough data for trend chart.</p>
+            ) : (
+              <div className="bar-chart">
+                {monthlySpendTrend.map((month) => (
+                  <div key={month.key} className="bar-item">
+                    <div
+                      className="bar"
+                      style={{ height: `${Math.max(6, (month.net / maxTrendValue) * 100)}%` }}
+                      title={`${month.label}: ${formatCurrency(month.net)}`}
+                    />
+                    <span>{month.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </article>
+
+          <article className="analysis-card">
+            <h4><span className="icon-pill inline"><ExpenseIcon /></span>Category Spend Split</h4>
+            {expenseCategoryTrend.length === 0 ? (
+              <p className="empty">No category data yet.</p>
+            ) : (
+              <div className="category-chart">
+                {expenseCategoryTrend.map((item) => (
+                  <div className="category-row" key={item.name}>
+                    <span>{item.name}</span>
+                    <div className="category-bar-wrap">
+                      <div
+                        className="category-bar"
+                        style={{ width: `${Math.max(4, (item.total / maxCategoryValue) * 100)}%` }}
+                      />
+                    </div>
+                    <span>{formatCurrency(item.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </article>
+        </div>
+
         <div className="log-chips">
           <span className="log-chip info">Added {formatCurrency(expenseStats.totalExpensesAdded)}</span>
           <span className="log-chip warn">Removed {formatCurrency(expenseStats.totalExpensesRemoved)}</span>
@@ -2544,10 +2710,10 @@ export default function App() {
           />
 
           <button className="ghost" onClick={exportExpenseHistory} disabled={expenseHistory.length === 0}>
-            Export JSON
+            <span className="button-with-icon"><ExportIcon />Export JSON</span>
           </button>
           <button className="ghost" onClick={clearExpenseHistory} disabled={expenseHistory.length === 0}>
-            Clear
+            <span className="button-with-icon"><TrashIcon />Clear</span>
           </button>
         </div>
 
